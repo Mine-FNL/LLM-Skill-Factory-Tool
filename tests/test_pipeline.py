@@ -10,8 +10,9 @@ class FakeClient:
         self.calls: list[dict] = []
 
     def complete(self, *, system, user, model=None, temperature=0.7, max_tokens=None):
-        self.calls.append({"system": system, "user": user, "model": model,
-                           "temperature": temperature})
+        self.calls.append(
+            {"system": system, "user": user, "model": model, "temperature": temperature}
+        )
         return GenerationResult(content=self.content, model=model or "fake-model")
 
 

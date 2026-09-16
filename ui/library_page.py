@@ -31,9 +31,7 @@ def render() -> None:
             return False
         if sel_types and m.skill_type not in sel_types:
             return False
-        if sel_tags and not (set(sel_tags) & set(m.tags)):
-            return False
-        return True
+        return not (sel_tags and not set(sel_tags) & set(m.tags))
 
     filtered = [m for m in metas if matches(m)]
     st.caption(f"{len(filtered)} of {len(metas)} skills")
@@ -49,7 +47,10 @@ def _card(s, m) -> None:
     n_versions = len(s.versions(slug))
     with st.container(border=True):
         st.markdown(f"### {slug}")
-        badges = [f"`{m.skill_type}`", f"v{m.version}" + (f" ({n_versions} versions)" if n_versions > 1 else "")]
+        badges = [
+            f"`{m.skill_type}`",
+            f"v{m.version}" + (f" ({n_versions} versions)" if n_versions > 1 else ""),
+        ]
         if m.base_skill:
             badges.append(f"⤷ extends `{m.base_skill}`")
         st.caption(" · ".join(badges))

@@ -15,16 +15,14 @@ from ui import (
     PAGE_NEW,
     PAGE_PLAYGROUND,
     PAGES,
-    ensure_state,
-    settings,
-)
-from ui import (
     batch_page,
     config_page,
     editor_page,
+    ensure_state,
     library_page,
     new_skill_page,
     playground_page,
+    settings,
 )
 
 st.set_page_config(page_title="LLM Skill Factory", page_icon="🏭", layout="wide")

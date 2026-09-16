@@ -108,8 +108,7 @@ class SkillStore:
         self._write(slug, next_v, content, meta)
         return next_v
 
-    def overwrite_version(self, slug: str, version: int, content: str,
-                          meta: SkillMeta) -> None:
+    def overwrite_version(self, slug: str, version: int, content: str, meta: SkillMeta) -> None:
         """Overwrite an existing version in place (e.g. small metadata edits)."""
 
         meta.version = version

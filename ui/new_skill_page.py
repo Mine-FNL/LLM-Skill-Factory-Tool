@@ -5,9 +5,10 @@ from __future__ import annotations
 import streamlit as st
 
 from skill_factory import pipeline
-from skill_factory.models import SKILL_TYPE_HELP, SKILL_TYPES, TONES, SkillMeta, SkillSpec
 from skill_factory.llm_client import LLMError
+from skill_factory.models import SKILL_TYPE_HELP, SKILL_TYPES, TONES, SkillMeta, SkillSpec
 from skill_factory.references import combine_references, extract_text_from_upload
+from skill_factory.safety import InputLimitError, ReservedSlugError, validate_skill_name
 from skill_factory.skill_store import slugify
 from skill_factory.validator import validate_skill_md
 
@@ -38,9 +39,9 @@ def _parse_list(text: str) -> list[str]:
 def render() -> None:
     st.header("✨ New Skill")
     stage = st.session_state.get("wiz_stage", "spec")
-    st.caption(" → ".join(
-        f"**{_STAGE_LABELS[s]}**" if s == stage else _STAGE_LABELS[s] for s in _STAGES
-    ))
+    st.caption(
+        " → ".join(f"**{_STAGE_LABELS[s]}**" if s == stage else _STAGE_LABELS[s] for s in _STAGES)
+    )
     st.divider()
 
     if stage == "spec":
@@ -53,21 +54,27 @@ def render() -> None:
 
 # ---------------------------------------------------------------------------
 def _spec_stage() -> None:
-    existing = [None] + store().list_skills()
+    existing = [None, *store().list_skills()]
     with st.form("spec_form"):
         c1, c2 = st.columns(2)
         with c1:
-            name = st.text_input("Skill name", placeholder="backend-api-engineer",
-                                 help="Will be slugified to kebab-case.")
-            skill_type = st.selectbox("Type", SKILL_TYPES,
-                                      help="\n".join(f"- **{k}**: {v}" for k, v in SKILL_TYPE_HELP.items()))
-            domain_focus = st.text_input("Domain / focus",
-                                         placeholder="REST API design in Python")
+            name = st.text_input(
+                "Skill name",
+                placeholder="backend-api-engineer",
+                help="Will be slugified to kebab-case.",
+            )
+            skill_type = st.selectbox(
+                "Type",
+                SKILL_TYPES,
+                help="\n".join(f"- **{k}**: {v}" for k, v in SKILL_TYPE_HELP.items()),
+            )
+            domain_focus = st.text_input("Domain / focus", placeholder="REST API design in Python")
         with c2:
             tone = st.selectbox("Tone", TONES, index=1)
             token_budget = st.slider("Target body size (tokens)", 400, 4000, 1500, 100)
-            base_skill = st.selectbox("Extend base skill (optional)", existing,
-                                      format_func=lambda x: x or "— none —")
+            base_skill = st.selectbox(
+                "Extend base skill (optional)", existing, format_func=lambda x: x or "— none —"
+            )
 
         description = st.text_area(
             "Trigger description (frontmatter `description`)",
@@ -88,10 +95,14 @@ def _spec_stage() -> None:
         )
 
         st.markdown("**Reference material (optional)** — grounds the generation in facts.")
-        ref_paste = st.text_area("Paste reference text", height=80,
-                                 placeholder="Paste durable facts, standards, internal notes…")
-        uploads = st.file_uploader("Or upload files (.txt/.md, .pdf if supported)",
-                                   accept_multiple_files=True)
+        ref_paste = st.text_area(
+            "Paste reference text",
+            height=80,
+            placeholder="Paste durable facts, standards, internal notes…",
+        )
+        uploads = st.file_uploader(
+            "Or upload files (.txt/.md, .pdf if supported)", accept_multiple_files=True
+        )
 
         submitted = st.form_submit_button("Continue to outline →", type="primary")
 
@@ -99,17 +110,32 @@ def _spec_stage() -> None:
         if not name.strip():
             st.error("Please provide a skill name.")
             return
+        try:
+            slug = validate_skill_name(name)
+        except ReservedSlugError as exc:
+            st.error(str(exc))
+            return
+        except ValueError as exc:
+            st.error(str(exc))
+            return
+
         # Gather reference material.
         file_texts: list[tuple[str, str]] = []
         for up in uploads or []:
             try:
                 file_texts.append((up.name, extract_text_from_upload(up.name, up.getvalue())))
-            except Exception as exc:  # noqa: BLE001 - surface to user
+            except InputLimitError as exc:
                 st.warning(f"Could not read {up.name}: {exc}")
-        reference_text = combine_references(ref_paste, file_texts)
+            except Exception as exc:
+                st.warning(f"Could not read {up.name}: {exc}")
+        try:
+            reference_text = combine_references(ref_paste, file_texts)
+        except InputLimitError as exc:
+            st.error(str(exc))
+            return
 
         spec = SkillSpec(
-            name=slugify(name),
+            name=slug,
             description=description.strip(),
             skill_type=skill_type,
             domain_focus=domain_focus.strip(),
@@ -158,7 +184,7 @@ def _outline_stage() -> None:
 
     st.text_area("Outline (edit freely before drafting)", key="wiz_outline", height=320)
 
-    c1, c2, c3 = st.columns([1, 1, 1])
+    c1, _c2, c3 = st.columns([1, 1, 1])
     if c1.button("← Back"):
         st.session_state["wiz_stage"] = "spec"
         st.rerun()

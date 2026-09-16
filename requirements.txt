@@ -1,11 +1,17 @@
 # LLM Skill Factory — runtime dependencies
 streamlit>=1.36
-openai>=1.40          # used only as an OpenAI-compatible client pointed at OpenRouter
+openai>=1.40          # used as an OpenAI-compatible client pointed at the configured provider
 python-dotenv>=1.0
 PyYAML>=6.0
+requests>=2.32        # used for /models listing + connection pooling with retries
 
 # Optional: enables PDF reference-material extraction. The app degrades gracefully if absent.
 pypdf>=4.0
 
 # Dev / testing
 pytest>=8.0
+pytest-cov>=5.0
+ruff>=0.6
+mypy>=1.10
+types-PyYAML
+types-requests

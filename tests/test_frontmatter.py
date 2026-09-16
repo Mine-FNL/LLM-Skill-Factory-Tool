@@ -24,5 +24,5 @@ def test_malformed_yaml_recovers_body():
 
 
 def test_missing_close_delim():
-    fm, body = split_frontmatter("---\nname: x\nno closing delimiter")
+    fm, _body = split_frontmatter("---\nname: x\nno closing delimiter")
     assert fm == {}

@@ -18,15 +18,26 @@ def test_backwards_compatible_alias():
 
 
 def test_list_models_without_listing_uses_fallback():
-    c = LLMClient("k", base_url="https://x/v1", default_model="m",
-                  fallback_models=("a", "b"), supports_model_listing=False)
+    c = LLMClient(
+        "k",
+        base_url="https://x/v1",
+        default_model="m",
+        fallback_models=("a", "b"),
+        supports_model_listing=False,
+    )
     assert c.list_models() == ["a", "b"]
 
 
 def test_app_headers_only_when_enabled():
     c = LLMClient("k", base_url="https://x/v1", default_model="m", send_app_headers=False)
     assert c._extra_headers == {}
-    c2 = LLMClient("k", base_url="https://x/v1", default_model="m",
-                   send_app_headers=True, app_title="T", app_url="https://u")
+    c2 = LLMClient(
+        "k",
+        base_url="https://x/v1",
+        default_model="m",
+        send_app_headers=True,
+        app_title="T",
+        app_url="https://u",
+    )
     assert c2._extra_headers["X-Title"] == "T"
     assert c2._extra_headers["HTTP-Referer"] == "https://u"

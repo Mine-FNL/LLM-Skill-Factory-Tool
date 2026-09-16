@@ -1,0 +1,56 @@
+# Reduce Docker build context. Keep the image small and the build cache useful.
+
+# Version control
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.egg-info
+.eggs
+build
+dist
+.mypy_cache
+.pytest_cache
+.ruff_cache
+.coverage
+.coverage.*
+htmlcov
+
+# Virtualenvs
+.venv
+venv
+env
+
+# Editor / IDE
+.vscode
+.idea
+.DS_Store
+
+# Local secrets + generated artefacts
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+skills/*
+!skills/.gitkeep
+
+# Test artefacts
+tests/
+conftest.py
+
+# Docs (not needed in the runtime image)
+INSTALL.md
+CHANGELOG.md
+CONTRIBUTING.md
+SECURITY.md
+ARCHITECTURE.md
+LICENSE
+*.md
+!README.md
+
+# Makefile + tooling files
+Makefile

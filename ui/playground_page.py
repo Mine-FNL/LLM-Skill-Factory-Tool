@@ -5,8 +5,8 @@ from __future__ import annotations
 import streamlit as st
 
 from skill_factory.frontmatter import split_frontmatter
-from skill_factory.models import TestResult
 from skill_factory.llm_client import LLMError
+from skill_factory.models import TestResult
 
 from . import get_client, model_selectbox, require_key, store
 
@@ -30,8 +30,9 @@ def render() -> None:
     cur_v = st.session_state.get("pg_version")
     if cur_v not in versions:
         cur_v = versions[-1]
-    version = c2.selectbox("Version", versions, index=versions.index(cur_v),
-                           format_func=lambda v: f"v{v}")
+    version = c2.selectbox(
+        "Version", versions, index=versions.index(cur_v), format_func=lambda v: f"v{v}"
+    )
     st.session_state["pg_slug"] = slug
     st.session_state["pg_version"] = version
 
@@ -62,7 +63,9 @@ def render() -> None:
                 stream = get_client().chat(messages, model=model, stream=True)
                 output = st.write_stream(stream)
             st.session_state["pg_last"] = {
-                "prompt": user_prompt, "output": output, "model": model,
+                "prompt": user_prompt,
+                "output": output,
+                "model": model,
             }
         except LLMError as exc:
             st.error(str(exc))
@@ -90,9 +93,15 @@ def _rating_panel(s, slug: str, version: int) -> None:
         rating = ""
     if rating is not None:
         meta = s.load_meta(slug, version)
-        meta.test_results.append(TestResult(
-            test_name=name, user_prompt=last["prompt"], output=last["output"],
-            model=last["model"], rating=rating, notes=notes,
-        ))
+        meta.test_results.append(
+            TestResult(
+                test_name=name,
+                user_prompt=last["prompt"],
+                output=last["output"],
+                model=last["model"],
+                rating=rating,
+                notes=notes,
+            )
+        )
         s.update_meta(slug, version, meta)
         st.success(f"Recorded ({len(meta.test_results)} total for v{version}).")

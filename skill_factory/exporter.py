@@ -12,8 +12,9 @@ from .models import SkillMeta
 from .skill_store import META_FILENAME, SKILL_FILENAME, SkillStore
 
 
-def zip_skill(store: SkillStore, slug: str, *, version: int | None = None,
-              all_versions: bool = False) -> bytes:
+def zip_skill(
+    store: SkillStore, slug: str, *, version: int | None = None, all_versions: bool = False
+) -> bytes:
     """Build an in-memory zip of a skill, ready for a Streamlit download button."""
 
     buf = io.BytesIO()
@@ -39,8 +40,9 @@ def zip_skill(store: SkillStore, slug: str, *, version: int | None = None,
     return buf.getvalue()
 
 
-def copy_skill_to(store: SkillStore, slug: str, dest_dir: Path,
-                  *, version: int | None = None) -> Path:
+def copy_skill_to(
+    store: SkillStore, slug: str, dest_dir: Path, *, version: int | None = None
+) -> Path:
     """Copy a skill's SKILL.md (+ metadata) into ``dest_dir/<slug>/``."""
 
     v = version or store.latest_version(slug)
@@ -61,7 +63,7 @@ def usage_guide(slug: str, meta: SkillMeta) -> str:
     return f"""\
 # Using the `{slug}` skill
 
-**What it does:** {meta.description or '(see SKILL.md)'}
+**What it does:** {meta.description or "(see SKILL.md)"}
 
 ## How to use
 1. Place `{slug}/SKILL.md` in your application's skills directory.
@@ -72,7 +74,7 @@ def usage_guide(slug: str, meta: SkillMeta) -> str:
 
 ## Details
 - Type: {meta.skill_type}
-- Tags: {', '.join(meta.tags) if meta.tags else '—'}
+- Tags: {", ".join(meta.tags) if meta.tags else "—"}
 - Version: v{meta.version}
-{('- Extends base skill: ' + meta.base_skill) if meta.base_skill else ''}
+{("- Extends base skill: " + meta.base_skill) if meta.base_skill else ""}
 """

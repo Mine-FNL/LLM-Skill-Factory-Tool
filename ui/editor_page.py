@@ -9,8 +9,8 @@ import streamlit as st
 from skill_factory import pipeline
 from skill_factory.exporter import zip_skill
 from skill_factory.frontmatter import split_frontmatter
-from skill_factory.models import SkillMeta
 from skill_factory.llm_client import LLMError
+from skill_factory.models import SkillMeta
 from skill_factory.validator import validate_skill_md
 
 from . import (
@@ -48,8 +48,9 @@ def render() -> None:
     cur_v = st.session_state.get("editor_version")
     if cur_v not in versions:
         cur_v = versions[-1]
-    version = c2.selectbox("Version", versions, index=versions.index(cur_v),
-                           format_func=lambda v: f"v{v}")
+    version = c2.selectbox(
+        "Version", versions, index=versions.index(cur_v), format_func=lambda v: f"v{v}"
+    )
     st.session_state["editor_slug"] = slug
     st.session_state["editor_version"] = version
 
@@ -59,8 +60,13 @@ def render() -> None:
         st.session_state["editor_content"] = s.load_content(slug, version)
         st.session_state["editor_loaded_key"] = load_key
 
-    c3.download_button("⬇️ Zip", data=zip_skill(s, slug), file_name=f"{slug}.zip",
-                       mime="application/zip", key="editor_zip")
+    c3.download_button(
+        "⬇️ Zip",
+        data=zip_skill(s, slug),
+        file_name=f"{slug}.zip",
+        mime="application/zip",
+        key="editor_zip",
+    )
 
     # --- edit + preview -----------------------------------------------------
     edit_col, view_col = st.columns(2)
@@ -101,8 +107,11 @@ def _refine_panel(slug: str) -> None:
         try:
             with st.spinner("Refining…"):
                 res = pipeline.refine_section(
-                    get_client(), st.session_state["editor_content"],
-                    instruction, section=section, model=model,
+                    get_client(),
+                    st.session_state["editor_content"],
+                    instruction,
+                    section=section,
+                    model=model,
                 )
             # Defer applying the new content to the next run (see render()).
             st.session_state["_pending_editor_content"] = res.content
@@ -116,22 +125,25 @@ def _save_panel(s, slug: str, version: int) -> None:
     notes = st.text_input("Version notes", placeholder="What changed?")
     b1, b2 = st.columns(2)
     if b1.button("Save as NEW version", type="primary"):
-        meta = _meta_for_save(s, slug, version, st.session_state["editor_content"],
-                              notes, new_version=True)
+        meta = _meta_for_save(
+            s, slug, version, st.session_state["editor_content"], notes, new_version=True
+        )
         new_v = s.save_new_version(slug, st.session_state["editor_content"], meta)
         st.session_state["editor_version"] = new_v
         st.session_state["editor_loaded_key"] = None  # reload from disk next run
         st.success(f"Saved as v{new_v}.")
         st.rerun()
     if b2.button(f"Overwrite v{version}"):
-        meta = _meta_for_save(s, slug, version, st.session_state["editor_content"],
-                              notes, new_version=False)
+        meta = _meta_for_save(
+            s, slug, version, st.session_state["editor_content"], notes, new_version=False
+        )
         s.overwrite_version(slug, version, st.session_state["editor_content"], meta)
         st.success(f"Overwrote v{version}.")
 
 
-def _meta_for_save(s, slug: str, version: int, content: str, notes: str,
-                   *, new_version: bool) -> SkillMeta:
+def _meta_for_save(
+    s, slug: str, version: int, content: str, notes: str, *, new_version: bool
+) -> SkillMeta:
     """Carry forward existing metadata, updating description from the frontmatter."""
 
     fm, _ = split_frontmatter(content)

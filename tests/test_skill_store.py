@@ -48,7 +48,9 @@ def test_update_meta_records_tests(tmp_path):
     store = SkillStore(tmp_path)
     store.save_new_version("demo", "x", SkillMeta.from_spec(_spec("demo")))
     meta = store.load_meta("demo", 1)
-    meta.test_results.append(TestResult(test_name="t", user_prompt="p", output="o", model="m", rating="up"))
+    meta.test_results.append(
+        TestResult(test_name="t", user_prompt="p", output="o", model="m", rating="up")
+    )
     store.update_meta("demo", 1, meta)
     reloaded = store.load_meta("demo", 1)
     assert len(reloaded.test_results) == 1

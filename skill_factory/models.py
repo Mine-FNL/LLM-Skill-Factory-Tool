@@ -8,7 +8,7 @@ coupling. Nothing here is domain-specific.
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from typing import Any
 
 # ---------------------------------------------------------------------------
@@ -47,8 +47,8 @@ class SkillSpec:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "SkillSpec":
-        known = {f for f in cls.__dataclass_fields__}  # type: ignore[attr-defined]
+    def from_dict(cls, data: dict[str, Any]) -> SkillSpec:
+        known = set(cls.__dataclass_fields__)  # type: ignore[attr-defined]
         return cls(**{k: v for k, v in data.items() if k in known})
 
 
@@ -70,8 +70,8 @@ class TestResult:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "TestResult":
-        known = {f for f in cls.__dataclass_fields__}  # type: ignore[attr-defined]
+    def from_dict(cls, data: dict[str, Any]) -> TestResult:
+        known = set(cls.__dataclass_fields__)  # type: ignore[attr-defined]
         return cls(**{k: v for k, v in data.items() if k in known})
 
 
@@ -98,17 +98,18 @@ class SkillMeta:
         return data
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "SkillMeta":
+    def from_dict(cls, data: dict[str, Any]) -> SkillMeta:
         data = dict(data)
         raw_results = data.pop("test_results", []) or []
-        known = {f for f in cls.__dataclass_fields__}  # type: ignore[attr-defined]
+        known = set(cls.__dataclass_fields__)  # type: ignore[attr-defined]
         meta = cls(**{k: v for k, v in data.items() if k in known})
         meta.test_results = [TestResult.from_dict(r) for r in raw_results]
         return meta
 
     @classmethod
-    def from_spec(cls, spec: SkillSpec, *, version: int = 1, model: str = "",
-                  version_notes: str = "") -> "SkillMeta":
+    def from_spec(
+        cls, spec: SkillSpec, *, version: int = 1, model: str = "", version_notes: str = ""
+    ) -> SkillMeta:
         return cls(
             name=spec.name,
             description=spec.description,

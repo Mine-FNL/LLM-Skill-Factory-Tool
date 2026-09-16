@@ -13,9 +13,17 @@ def test_get_provider_fallback():
 
 
 def _clear_env(monkeypatch):
-    for v in ["OPENROUTER_API_KEY", "MINIMAX_API_KEY", "MOONSHOT_API_KEY", "LLM_API_KEY",
-              "LLM_PROVIDER", "SKILLS_DIR", "OPENROUTER_DEFAULT_MODEL", "MINIMAX_DEFAULT_MODEL",
-              "KIMI_DEFAULT_MODEL"]:
+    for v in [
+        "OPENROUTER_API_KEY",
+        "MINIMAX_API_KEY",
+        "MOONSHOT_API_KEY",
+        "LLM_API_KEY",
+        "LLM_PROVIDER",
+        "SKILLS_DIR",
+        "OPENROUTER_DEFAULT_MODEL",
+        "MINIMAX_DEFAULT_MODEL",
+        "KIMI_DEFAULT_MODEL",
+    ]:
         monkeypatch.delenv(v, raising=False)
 
 
@@ -57,8 +65,7 @@ def test_default_model_from_env(monkeypatch):
 
 def test_base_url_override_for_regional_endpoint(monkeypatch):
     _clear_env(monkeypatch)
-    s = get_settings({"provider": "kimi", "api_key": "k",
-                      "base_url": "https://api.moonshot.cn/v1"})
+    s = get_settings({"provider": "kimi", "api_key": "k", "base_url": "https://api.moonshot.cn/v1"})
     assert s.base_url == "https://api.moonshot.cn/v1"
 
 

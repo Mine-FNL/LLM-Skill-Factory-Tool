@@ -100,8 +100,7 @@ def _context_block(reference_text: str) -> str:
 # ---------------------------------------------------------------------------
 def outline_system() -> str:
     return (
-        SKILL_MD_GUIDE
-        + "\n\n## Current task\nYou are in the PLANNING stage. Do not write the "
+        SKILL_MD_GUIDE + "\n\n## Current task\nYou are in the PLANNING stage. Do not write the "
         "skill yet. Produce a concise outline (markdown bullets) of the sections the "
         "SKILL.md should contain, with a one-line note under each on what it will "
         "cover and why it is non-obvious/high-value. The user will review and edit "
@@ -122,8 +121,7 @@ def outline_user(spec: SkillSpec) -> str:
 # ---------------------------------------------------------------------------
 def draft_system() -> str:
     return (
-        SKILL_MD_GUIDE
-        + "\n\n## Current task\nYou are in the DRAFTING stage. Write the complete, "
+        SKILL_MD_GUIDE + "\n\n## Current task\nYou are in the DRAFTING stage. Write the complete, "
         "production-ready SKILL.md now, following the approved outline and all rules "
         "above. Remember the output contract: output only the file content, no fences, "
         "no commentary."
@@ -155,9 +153,7 @@ def refine_system() -> str:
 
 
 def refine_user(skill_md: str, instruction: str, section: str = "") -> str:
-    target = (
-        f"\n\nFocus your changes on the '{section}' section." if section.strip() else ""
-    )
+    target = f"\n\nFocus your changes on the '{section}' section." if section.strip() else ""
     return (
         f"Refinement instruction: {instruction}{target}\n\n"
         "Current SKILL.md:\n<skill>\n" + skill_md.strip() + "\n</skill>"
@@ -169,8 +165,7 @@ def refine_user(skill_md: str, instruction: str, section: str = "") -> str:
 # ---------------------------------------------------------------------------
 def overlay_system() -> str:
     return (
-        SKILL_MD_GUIDE
-        + "\n\n## Current task\nYou are creating a SPECIALIST overlay skill that "
+        SKILL_MD_GUIDE + "\n\n## Current task\nYou are creating a SPECIALIST overlay skill that "
         "extends an existing BASE skill. Do NOT duplicate what the base already covers. "
         "Assume the base skill is also active. Add only the subject-specific, "
         "non-obvious knowledge, watchpoints, and templates unique to this specialisation. "

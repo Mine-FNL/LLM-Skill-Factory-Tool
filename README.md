@@ -15,6 +15,10 @@ endpoint (bring your own API key).
 > 🆕 **New to Python or the command line?** Follow the step-by-step
 > **[Installation Guide → INSTALL.md](INSTALL.md)**, which walks you through everything from zero.
 
+> 🚀 **Deploying?** See **[Production deployment](#production-deployment)** for the hardened
+> image, health probe, operational env vars, and auth notes. The architecture map is in
+> **[ARCHITECTURE.md](ARCHITECTURE.md)** and the change log in **[CHANGELOG.md](CHANGELOG.md)**.
+
 ---
 
 ## Features
@@ -160,13 +164,76 @@ written to disk by the app.
 ## Development
 
 ```bash
-pip install -r requirements.txt
-pytest                 # store round-trips, validator rules, pipeline (mocked), provider resolution, app smoke test
+make dev               # pip install -e ".[dev,pdf]"
+make lint              # ruff check
+make format            # ruff format
+make test              # pytest
+make test-cov          # pytest + coverage
+make typecheck         # mypy on skill_factory/
 ```
 
 The core package [`skill_factory/`](skill_factory/) contains all logic and has **no Streamlit
 imports**, so it is fully unit-testable and reusable outside the UI. The Streamlit layer lives in
 [`ui/`](ui/) and [`app.py`](app.py).
+
+## Production deployment
+
+This project ships a hardened 0.2+ image. Run it however you prefer:
+
+```bash
+# 1. Container (recommended): non-root user, multi-stage build, in-tree HEALTHCHECK.
+docker build -t skill-factory:0.2 .
+docker run --rm -p 8501:8501 \
+    -e LLM_PROVIDER=openrouter \
+    -e OPENROUTER_API_KEY=sk-or-... \
+    skill-factory:0.2
+
+# 2. Bare metal / venv
+pip install -e .
+streamlit run app.py
+
+# 3. CLI version + health probe
+python -m skill_factory               # prints the version
+python -m skill_factory healthcheck   # full check (exit 0 = ready)
+```
+
+What "production-ready" means in this repo (full detail in
+[`SECURITY.md`](SECURITY.md) and [`ARCHITECTURE.md`](ARCHITECTURE.md)):
+
+| Concern              | Implementation                                                                                                    |
+|----------------------|-------------------------------------------------------------------------------------------------------------------|
+| API call resilience  | Configurable timeout + retry with exponential backoff + jitter on transient HTTP / network failures (`LLMClient`).|
+| Typed errors         | `RetryableLLMError` distinguishes transient from permanent failures for the UI / batch runner.                    |
+| Input limits         | Hard size caps on reference text (`SF_MAX_REF_TEXT_BYTES`, default 200 KB) and uploads (default 5 MB).             |
+| Path safety          | Reserved-slug protection (Windows device names, `.`, `..`), path-traversal guard, kebab-case enforcement.         |
+| Logging              | stdlib `logging` via `skill_factory.logging_setup`; JSON format for container aggregators.                        |
+| Health probe         | `python -m skill_factory.healthcheck` — Docker `HEALTHCHECK`-compatible, JSON output, `--strict` for prod.        |
+| Container hardening  | Multi-stage `Dockerfile`, non-root user (`uid 10001`), `HEALTHCHECK` directive wired to the in-tree module.        |
+| CI                   | GitHub Actions: ruff + pytest matrix on Python 3.10 / 3.11 / 3.12 + Docker build smoke.                          |
+| Dependency updates   | Dependabot configured for pip + GitHub Actions, weekly, grouped.                                                  |
+
+### Operational knobs
+
+All of these are environment variables with sensible defaults; you do not need to set them unless
+your deployment differs.
+
+| Env var                     | Purpose                                            | Default |
+|-----------------------------|----------------------------------------------------|---------|
+| `LLM_PROVIDER`              | `openrouter` / `minimax` / `kimi` / `custom`       | `openrouter` |
+| `LLM_TIMEOUT`               | Per-request HTTP timeout in seconds                | `60`    |
+| `LLM_MAX_RETRIES`           | Retry attempts (exponential backoff + jitter)      | `3`     |
+| `SF_MAX_REF_TEXT_BYTES`     | Reject oversized pasted / uploaded reference text  | `204800` (200 KB) |
+| `SF_MAX_UPLOAD_BYTES`       | Reject oversized file uploads                      | `5242880` (5 MB) |
+| `SF_MAX_NAME_LEN`           | Reject oversized skill slugs                       | `64`    |
+| `SKILL_FACTORY_LOG_LEVEL`   | `DEBUG` / `INFO` / `WARNING` / `ERROR`             | `WARNING` |
+| `SKILL_FACTORY_LOG_FORMAT`  | `plain` or `json`                                  | `plain` |
+| `SKILLS_DIR`                | Where skills are written                           | `./skills` |
+
+### Auth
+
+The Streamlit app is **single-tenant**. If you expose it beyond localhost, put it behind your
+existing reverse-proxy / auth layer (nginx, oauth2-proxy, Cloudflare Access, etc.). Out of the box
+the app binds to `0.0.0.0:8501` and trusts any client that can reach the port.
 
 ## Roadmap (deferred)
 

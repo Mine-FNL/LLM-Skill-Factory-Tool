@@ -31,7 +31,7 @@ def split_frontmatter(text: str) -> tuple[dict[str, Any], str]:
         return {}, text
 
     fm_block = "\n".join(lines[1:end])
-    body = "\n".join(lines[end + 1:]).lstrip("\n")
+    body = "\n".join(lines[end + 1 :]).lstrip("\n")
     try:
         data = yaml.safe_load(fm_block) or {}
         if not isinstance(data, dict):

@@ -19,11 +19,23 @@ _TRIGGER_HINTS = ("use when", "use this", "when ", "whenever", "trigger", "for "
 
 # Imperative sentence starters we expect to see in a good skill body.
 _IMPERATIVE_HINTS = (
-    "always", "never", "use ", "check", "structure", "ensure", "avoid",
-    "follow", "include", "do not", "prefer", "verify", "start", "list",
+    "always",
+    "never",
+    "use ",
+    "check",
+    "structure",
+    "ensure",
+    "avoid",
+    "follow",
+    "include",
+    "do not",
+    "prefer",
+    "verify",
+    "start",
+    "list",
 )
 
-MAX_NAME_LEN = 64
+MAX_NAME_LEN = 64  # mirrors skill_factory.safety.MAX_NAME_LEN (kept in sync)
 MAX_DESC_LEN = 1024
 MIN_DESC_LEN = 40
 LONG_BODY_LINES = 400  # suggest progressive disclosure beyond this

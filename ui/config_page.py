@@ -34,8 +34,13 @@ def render() -> None:
     cur = st.session_state.get("provider", ids[0])
     if cur not in ids:
         cur = ids[0]
-    chosen = st.radio("Provider", ids, index=ids.index(cur),
-                      format_func=lambda i: PROVIDERS[i].label, horizontal=True)
+    chosen = st.radio(
+        "Provider",
+        ids,
+        index=ids.index(cur),
+        format_func=lambda i: PROVIDERS[i].label,
+        horizontal=True,
+    )
     st.session_state["provider"] = chosen
     prov = get_provider(chosen)
 
@@ -55,15 +60,19 @@ def render() -> None:
     col1, col2 = st.columns(2)
     with col1:
         _persistent_input(
-            "provider_keys", chosen,
-            label=f"{prov.label} API key", widget_key=f"cfg_key_{chosen}",
+            "provider_keys",
+            chosen,
+            label=f"{prov.label} API key",
+            widget_key=f"cfg_key_{chosen}",
             type="password",
             placeholder="(loaded from environment)" if env_supplied else "sk-...",
         )
     with col2:
         _persistent_input(
-            "provider_models", chosen,
-            label="Default model", widget_key=f"cfg_model_{chosen}",
+            "provider_models",
+            chosen,
+            label="Default model",
+            widget_key=f"cfg_model_{chosen}",
             placeholder=prov.default_model or "model id",
             help="Type any model id this provider supports.",
         )
@@ -71,8 +80,7 @@ def render() -> None:
     s = settings()  # re-resolve after edits
     fcol, ncol = st.columns([1, 2])
     with fcol:
-        if st.button("🔄 Fetch models",
-                     disabled=not s.has_key or not prov.supports_model_listing):
+        if st.button("🔄 Fetch models", disabled=not s.has_key or not prov.supports_model_listing):
             try:
                 with st.spinner("Querying provider…"):
                     models = client_from_settings(overrides()).list_models()
@@ -84,16 +92,20 @@ def render() -> None:
                 st.error(str(exc))
     with ncol:
         if not prov.supports_model_listing:
-            st.caption("No live model listing for this provider — a curated list is used. "
-                       "Type any model id in the field above.")
+            st.caption(
+                "No live model listing for this provider — a curated list is used. "
+                "Type any model id in the field above."
+            )
 
     with st.expander("Advanced settings"):
         _persistent_input(
-            "provider_base_urls", chosen,
-            label="Base URL", widget_key=f"cfg_base_{chosen}",
+            "provider_base_urls",
+            chosen,
+            label="Base URL",
+            widget_key=f"cfg_base_{chosen}",
             placeholder=prov.base_url or "https://…/v1",
             help="Editable for regional endpoints (e.g. Moonshot .cn, MiniMax .chat) or any "
-                 "OpenAI-compatible gateway.",
+            "OpenAI-compatible gateway.",
         )
         st.text_input("App title (sent to OpenRouter)", key="app_title", placeholder=s.app_title)
         st.text_input("App URL (sent to OpenRouter)", key="app_url", placeholder=s.app_url)

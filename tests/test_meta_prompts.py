@@ -20,8 +20,15 @@ def _spec():
 
 def test_guide_encodes_core_rules():
     g = mp.SKILL_MD_GUIDE.lower()
-    for rule in ["frontmatter", "kebab-case", "description", "imperative",
-                 "progressive disclosure", "non-obvious", "code fences"]:
+    for rule in [
+        "frontmatter",
+        "kebab-case",
+        "description",
+        "imperative",
+        "progressive disclosure",
+        "non-obvious",
+        "code fences",
+    ]:
         assert rule in g, rule
 
 

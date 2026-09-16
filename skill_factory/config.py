@@ -16,8 +16,10 @@ from .providers import DEFAULT_PROVIDER, get_provider
 try:  # python-dotenv is a hard dependency, but keep import resilient for tests
     from dotenv import load_dotenv
 except Exception:  # pragma: no cover
+
     def load_dotenv(*_args, **_kwargs):  # type: ignore
         return False
+
 
 # Project root = parent of this package directory.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -98,10 +100,17 @@ def get_settings(overrides: dict | None = None) -> Settings:
         fallback_models=prov.models,
         supports_model_listing=prov.supports_model_listing,
         sends_app_headers=prov.sends_app_headers,
-        app_title=first(overrides.get("app_title", ""), os.environ.get("APP_TITLE", ""),
-                        os.environ.get("OPENROUTER_APP_TITLE", ""), "LLM Skill Factory"),
-        app_url=first(overrides.get("app_url", ""), os.environ.get("APP_URL", ""),
-                      os.environ.get("OPENROUTER_APP_URL", ""),
-                      "https://github.com/0xBingBong69/LLM-Skill-Factory-Tool"),
+        app_title=first(
+            overrides.get("app_title", ""),
+            os.environ.get("APP_TITLE", ""),
+            os.environ.get("OPENROUTER_APP_TITLE", ""),
+            "LLM Skill Factory",
+        ),
+        app_url=first(
+            overrides.get("app_url", ""),
+            os.environ.get("APP_URL", ""),
+            os.environ.get("OPENROUTER_APP_URL", ""),
+            "https://github.com/0xBingBong69/LLM-Skill-Factory-Tool",
+        ),
         skills_dir=skills_dir,
     )

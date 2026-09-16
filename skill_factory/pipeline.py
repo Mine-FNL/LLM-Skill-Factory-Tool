@@ -36,8 +36,9 @@ def clean_skill_output(text: str) -> str:
     return s + "\n"
 
 
-def plan_outline(client, spec: SkillSpec, *, model: str | None = None,
-                 temperature: float = 0.5) -> GenerationResult:
+def plan_outline(
+    client, spec: SkillSpec, *, model: str | None = None, temperature: float = 0.5
+) -> GenerationResult:
     return client.complete(
         system=mp.outline_system(),
         user=mp.outline_user(spec),
@@ -46,8 +47,14 @@ def plan_outline(client, spec: SkillSpec, *, model: str | None = None,
     )
 
 
-def generate_draft(client, spec: SkillSpec, outline: str = "", *,
-                   model: str | None = None, temperature: float = 0.6) -> GenerationResult:
+def generate_draft(
+    client,
+    spec: SkillSpec,
+    outline: str = "",
+    *,
+    model: str | None = None,
+    temperature: float = 0.6,
+) -> GenerationResult:
     result = client.complete(
         system=mp.draft_system(),
         user=mp.draft_user(spec, outline),
@@ -58,8 +65,15 @@ def generate_draft(client, spec: SkillSpec, outline: str = "", *,
     return result
 
 
-def refine_section(client, skill_md: str, instruction: str, *, section: str = "",
-                   model: str | None = None, temperature: float = 0.5) -> GenerationResult:
+def refine_section(
+    client,
+    skill_md: str,
+    instruction: str,
+    *,
+    section: str = "",
+    model: str | None = None,
+    temperature: float = 0.5,
+) -> GenerationResult:
     result = client.complete(
         system=mp.refine_system(),
         user=mp.refine_user(skill_md, instruction, section),
@@ -70,8 +84,15 @@ def refine_section(client, skill_md: str, instruction: str, *, section: str = ""
     return result
 
 
-def generate_overlay(client, base_md: str, entity: str, spec: SkillSpec, *,
-                     model: str | None = None, temperature: float = 0.6) -> GenerationResult:
+def generate_overlay(
+    client,
+    base_md: str,
+    entity: str,
+    spec: SkillSpec,
+    *,
+    model: str | None = None,
+    temperature: float = 0.6,
+) -> GenerationResult:
     result = client.complete(
         system=mp.overlay_system(),
         user=mp.overlay_user(base_md, entity, spec),

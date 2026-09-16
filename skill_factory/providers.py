@@ -60,8 +60,8 @@ PROVIDERS: dict[str, Provider] = {
         supports_model_listing=False,
         keys_url="https://platform.minimax.io/",
         note="MiniMax's OpenAI-compatible endpoint (POST /v1/chat/completions). For the China "
-             "platform, set the base URL to https://api.minimax.chat/v1 in Advanced. Model ids "
-             "evolve (M2.x, M3…) — type the one you want.",
+        "platform, set the base URL to https://api.minimax.chat/v1 in Advanced. Model ids "
+        "evolve (M2.x, M3…) — type the one you want.",
     ),
     "kimi": Provider(
         id="kimi",
@@ -79,8 +79,8 @@ PROVIDERS: dict[str, Provider] = {
         supports_model_listing=True,
         keys_url="https://platform.moonshot.ai/console/api-keys",
         note="Moonshot AI (Kimi). For the China platform, set the base URL to "
-             "https://api.moonshot.cn/v1 in Advanced. Click 'Fetch models' for the live list "
-             "(the older kimi-k2 / kimi-latest ids were retired in 2026).",
+        "https://api.moonshot.cn/v1 in Advanced. Click 'Fetch models' for the live list "
+        "(the older kimi-k2 / kimi-latest ids were retired in 2026).",
     ),
     "custom": Provider(
         id="custom",

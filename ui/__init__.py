@@ -29,9 +29,9 @@ _STATE_DEFAULTS = {
     # config overrides (never written to disk). Per-provider values persist in plain
     # session dicts so switching providers (which unmounts the widgets) never loses them.
     "provider": DEFAULT_PROVIDER,
-    "provider_keys": {},        # provider_id -> api key
-    "provider_models": {},      # provider_id -> default model
-    "provider_base_urls": {},   # provider_id -> base url override
+    "provider_keys": {},  # provider_id -> api key
+    "provider_models": {},  # provider_id -> default model
+    "provider_base_urls": {},  # provider_id -> base url override
     "app_title": "",
     "app_url": "",
     "skills_dir": "",
@@ -92,8 +92,9 @@ def has_key() -> bool:
 
 def require_key() -> bool:
     if not has_key():
-        st.warning("Set an API key for your selected provider on the **Config** page first.",
-                   icon="🔑")
+        st.warning(
+            "Set an API key for your selected provider on the **Config** page first.", icon="🔑"
+        )
         return False
     return True
 
@@ -113,7 +114,7 @@ def model_selectbox(label: str = "Model", key: str | None = None):
     models = list(cache.get(s.provider_id, [])) or list(s.fallback_models)
     default = s.default_model
     if default and default not in models:
-        models = [default] + models
+        models = [default, *models]
     help_text = "Pick a model, or set the default on the Config page."
     if models:
         # Seed/repair the keyed state (avoids passing index alongside key).
