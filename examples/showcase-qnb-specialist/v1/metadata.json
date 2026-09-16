@@ -1,0 +1,46 @@
+{
+  "name": "qnb-specialist",
+  "description": "Use when reviewing Qatar National Bank (QNB) financial filings, Q3 earnings call transcripts, or sector-specific analyst notes for the Qatari banking sector.",
+  "skill_type": "specialist",
+  "domain_focus": "Qatari banking — QNB Group",
+  "tags": ["qnb", "qse", "banks", "financial-analysis", "emerging-markets", "me"],
+  "entities": ["QNB"],
+  "base_skill": "financial-statement-analyst",
+  "version": 1,
+  "version_notes": "v1 — initial specialist, focused on regulatory capital and MEE exposure.",
+  "model": "illustrative",
+  "created_at": 1735689600.0,
+  "lift_pp": 35.5,
+  "lift_ci_pp": [12.0, 59.0],
+  "base_pass_rate": 0.5,
+  "skill_pass_rate": 0.855,
+  "last_eval_set": "financial-statement-analyst",
+  "last_eval_at": 1735776000.0,
+  "eval_results": [
+    {
+      "id": "evalshowcase1",
+      "skill_slug": "qnb-specialist",
+      "skill_version": 1,
+      "eval_set_name": "financial-statement-analyst",
+      "eval_set_version": 1,
+      "eval_model": "illustrative",
+      "judge_model": "illustrative",
+      "base_pass_rate": 0.5,
+      "skill_pass_rate": 0.833,
+      "lift_pp": 33.3,
+      "lift_ci_low_pp": 0.0,
+      "lift_ci_high_pp": 66.7,
+      "n_prompts": 6,
+      "n_bootstrap": 1000,
+      "pass_threshold": 0.5,
+      "created_at": 1735776000.0,
+      "control_results": [],
+      "notes": {
+        "illustrative": true,
+        "comment": "Numbers are illustrative for the README — replace with a real --save run."
+      },
+      "prompt_results": []
+    }
+  ],
+  "test_results": []
+}

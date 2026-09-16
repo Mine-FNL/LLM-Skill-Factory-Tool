@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: |
+  If you use LLM Skill Factory in research or production, please cite it.
+  The DOI below will resolve to the latest GitHub release.
+type: software
+title: "LLM Skill Factory"
+abstract: |
+  Domain-agnostic SKILL.md studio with a built-in eval harness. Generates,
+  validates, versions, and measures the lift of modular AI-expertise skill
+  files (the open SKILL.md standard) over base model output, with bootstrap
+  95% confidence intervals and judge self-calibration controls.
+authors:
+  - name: Mine-FNL
+    alias: 0xBingBong69
+license: MIT
+license-url: https://github.com/Mine-FNL/LLM-Skill-Factory-Tool/blob/main/LICENSE
+repository-code: https://github.com/Mine-FNL/LLM-Skill-Factory-Tool
+url: https://github.com/Mine-FNL/LLM-Skill-Factory-Tool
+keywords:
+  - skill-md
+  - llm
+  - prompts
+  - prompt-engineering
+  - eval
+  - bootstrap
+  - confidence-intervals
+  - streamlit
+  - openrouter
+  - anthropic
+  - claude
+  - openai
+  - codex
+  - moonshot
+  - kimi
+date-released: 2026-09-16
+version: 0.3.0

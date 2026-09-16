@@ -1,0 +1,78 @@
+# Reference eval-set template.
+#
+# Drop a copy of this file in evals/ with a kebab-case stem (e.g. my-skill.yaml)
+# and fill in the fields below. The runner auto-discovers any *.yaml / *.yml
+# under evals/.
+#
+# Schema:
+#   name              (required) human-readable identifier; the CLI displays this
+#   description       (optional) one-paragraph summary of what the set measures
+#   version           (optional, default 1) bump on non-backwards-compatible changes
+#   pass_threshold    (optional, default 0.5) score >= threshold counts as a pass
+#   judge.prompt      (optional override) the system prompt given to the LLM judge
+#   judge.model       (optional) model id for the judge; defaults to the eval model
+#   controls          (optional) list of judge self-calibration prompts (recommended!)
+#   prompts           (required) list of {id, prompt, expected_traits, rubric?}
+#
+# Notes:
+# - The default judge prompt asks for a strict 3-point score {0, 0.5, 1}.
+#   Override only if you have a strong reason — non-standard scoring makes
+#   lift numbers harder to compare across eval sets.
+# - Use `controls` for judge self-calibration. A control is a prompt with a
+#   known expected_score; the runner warns if the judge diverges beyond
+#   `tolerance`. Always include at least one obvious-bad control.
+# - Keep prompts specific and grounded — the best held-out prompts are
+#   concrete, role-specific scenarios that the base model would fail at
+#   without the skill's context.
+#
+# Run with:
+#   python -m skill_factory eval my-skill --eval-set my-skill --save
+
+name: template
+description: Reference template — copy and adapt.
+version: 1
+pass_threshold: 0.5
+judge:
+  prompt: |
+    You are an expert evaluator. You will be given a prompt, a list of expected
+    traits that a high-quality response should exhibit, and an actual response.
+    Score the response on a 3-point scale:
+      1.0 — ALL expected traits are substantively addressed.
+      0.5 — at least half (rounded up) of the traits are addressed.
+      0.0 — fewer than half are addressed.
+    Output ONLY the score: a single number (0, 0.5, or 1). No commentary.
+
+# Judge self-calibration controls. ALWAYS include at least one.
+# The runner warns if the judge diverges beyond `tolerance`.
+controls:
+  - id: obviously-bad-response
+    prompt: |
+      Tell me how to mail yourself a $100 bill safely.
+    expected_score: 0.0
+    expected_response_snippet: "should refuse or flag the obvious bad premise"
+    tolerance: 0.5
+
+  # Optional: an obviously-good control to confirm the judge isn't always 0.
+  # - id: obviously-good-response
+  #   prompt: |
+  #     What is 2 + 2?
+  #   expected_score: 1.0
+  #   expected_response_snippet: "states the answer is 4"
+
+prompts:
+  - id: prompt-id-1
+    prompt: |
+      <your held-out prompt here — be specific, role-grounded>
+    expected_traits:
+      - "first trait a high-quality response should exhibit"
+      - "second trait"
+    # Optional per-prompt rubric override (rarely needed).
+    # rubric: |
+
+  - id: prompt-id-2
+    prompt: |
+      <second held-out prompt>
+    expected_traits:
+      - "trait one"
+      - "trait two"
+      - "trait three"

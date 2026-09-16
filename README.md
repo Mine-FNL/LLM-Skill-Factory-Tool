@@ -6,6 +6,8 @@
 Author, validate, version, and *prove* that your skill makes the model better — with bootstrap confidence intervals.
 
 [![CI](https://github.com/Mine-FNL/LLM-Skill-Factory-Tool/actions/workflows/ci.yml/badge.svg)](https://github.com/Mine-FNL/LLM-Skill-Factory-Tool/actions)
+[![Coverage](https://img.shields.io/badge/coverage-79%25-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-146%20passing-brightgreen.svg)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![v0.3.0](https://img.shields.io/badge/version-0.3.0-blueviolet.svg)](CHANGELOG.md)
@@ -15,6 +17,31 @@ Author, validate, version, and *prove* that your skill makes the model better �
 ---
 
 > **The pitch in one sentence.** A SKILL.md is the open standard for modular AI expertise — a folder with a markdown file at the root that turns a general-purpose LLM into a specialist. **LLM Skill Factory is the only authoring tool that ships with an eval harness.** Every skill you author can be measured: base model vs. base+skill, on a held-out prompt set, with bootstrap 95% CI. You don't ship on vibes.
+
+<p align="center">
+  <img src="docs/architecture.svg" width="760" alt="LLM Skill Factory architecture: Streamlit UI → core package → skill library → eval harness → EvalReport">
+</p>
+
+---
+
+## Skills that have been measured
+
+A table generated from any `metadata.json` with a real `lift_pp` field. To populate it:
+
+```bash
+# Save a real eval against your saved skill.
+python -m skill_factory eval <slug> --save
+
+# Regenerate this table.
+python scripts/render_measured_skills.py
+```
+
+<!-- BEGIN MEASURED-SKILLS -->
+<!-- Run `python scripts/render_measured_skills.py` to refresh. -->
+_No skills have been measured yet. Run `python -m skill_factory eval <slug> --save` against a saved skill to populate this table._
+<!-- END MEASURED-SKILLS -->
+
+> Real measured lift numbers are the most valuable contribution to this project. The `eval-report` issue template makes sharing them back easy.
 
 ---
 

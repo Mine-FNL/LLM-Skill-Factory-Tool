@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" role="img" aria-label="LLM Skill Factory architecture">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C5CFC"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <style>
+      .box { fill: #161b22; stroke: #30363d; stroke-width: 1; rx: 10; }
+      .box-accent { fill: url(#accent); stroke: none; rx: 10; }
+      .box-eval { fill: #1f2937; stroke: #7C5CFC; stroke-width: 1.5; rx: 10; }
+      .lbl { fill: #f0f6fc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; font-weight: 600; }
+      .sub { fill: #8b949e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 11px; }
+      .arrow { stroke: #6e7681; stroke-width: 1.5; fill: none; marker-end: url(#ah); }
+      .arrow-accent { stroke: #7C5CFC; stroke-width: 2; fill: none; marker-end: url(#ah2); }
+      .arrow-dashed { stroke: #6e7681; stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; marker-end: url(#ah); }
+      .tag { fill: #1f2937; stroke: #30363d; rx: 4; }
+      .tag-text { fill: #c9d1d9; font-family: 'JetBrains Mono', 'SF Mono', monospace; font-size: 10px; }
+      .arrow-text { fill: #8b949e; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 10px; }
+    </style>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6e7681"/>
+    </marker>
+    <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7C5CFC"/>
+    </marker>
+  </defs>
+
+  <rect width="760" height="460" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="380" y="32" text-anchor="middle" class="lbl" style="font-size:18px">LLM Skill Factory — end-to-end flow</text>
+  <text x="380" y="52" text-anchor="middle" class="sub">Author → Validate → Save → Measure lift</text>
+
+  <!-- Stage 1: Authoring (UI) -->
+  <g filter="url(#shadow)">
+    <rect x="30" y="80" width="160" height="80" class="box"/>
+    <text x="110" y="106" text-anchor="middle" class="lbl">Streamlit UI</text>
+    <text x="110" y="126" text-anchor="middle" class="sub">New · Editor · Playground · Batch</text>
+    <text x="110" y="146" text-anchor="middle" class="sub">app.py · ui/</text>
+  </g>
+
+  <!-- Stage 2: Core package -->
+  <g filter="url(#shadow)">
+    <rect x="30" y="200" width="160" height="80" class="box-accent"/>
+    <text x="110" y="226" text-anchor="middle" class="lbl" style="fill:#fff">skill_factory/</text>
+    <text x="110" y="246" text-anchor="middle" class="sub" style="fill:#e0e7ff">core: no Streamlit imports</text>
+    <text x="110" y="266" text-anchor="middle" class="sub" style="fill:#e0e7ff">config · pipeline · llm_client</text>
+  </g>
+
+  <!-- Stage 3: Library -->
+  <g filter="url(#shadow)">
+    <rect x="30" y="320" width="160" height="80" class="box"/>
+    <text x="110" y="346" text-anchor="middle" class="lbl">Skill library</text>
+    <text x="110" y="366" text-anchor="middle" class="sub">skills/&lt;slug&gt;/v&lt;n&gt;/</text>
+    <text x="110" y="386" text-anchor="middle" class="sub">SKILL.md · metadata.json</text>
+  </g>
+
+  <!-- Stage 4: Eval (the moat) -->
+  <g filter="url(#shadow)">
+    <rect x="440" y="80" width="290" height="200" class="box-eval"/>
+    <text x="585" y="110" text-anchor="middle" class="lbl" style="fill:#c4b5fd">EVAL HARNESS</text>
+    <text x="585" y="130" text-anchor="middle" class="sub">python -m skill_factory eval &lt;slug&gt;</text>
+
+    <!-- Inside: base arm + skill arm + judge -->
+    <rect x="460" y="148" width="120" height="46" class="box"/>
+    <text x="520" y="170" text-anchor="middle" class="lbl" style="font-size:12px">Base model</text>
+    <text x="520" y="186" text-anchor="middle" class="sub">no skill · generic prompt</text>
+
+    <rect x="590" y="148" width="120" height="46" class="box"/>
+    <text x="650" y="170" text-anchor="middle" class="lbl" style="font-size:12px">Base + skill</text>
+    <text x="650" y="186" text-anchor="middle" class="sub">SKILL.md as system prompt</text>
+
+    <rect x="460" y="204" width="250" height="32" class="tag"/>
+    <text x="585" y="224" text-anchor="middle" class="tag-text">evals/*.yaml — held-out prompts + expected traits</text>
+
+    <rect x="460" y="244" width="250" height="28" class="tag"/>
+    <text x="585" y="262" text-anchor="middle" class="tag-text">LLM-as-judge · judge self-calibration controls</text>
+  </g>
+
+  <!-- Stage 5: Output -->
+  <g filter="url(#shadow)">
+    <rect x="440" y="320" width="290" height="80" class="box"/>
+    <text x="585" y="346" text-anchor="middle" class="lbl">EvalReport → metadata.json</text>
+    <text x="585" y="368" text-anchor="middle" class="sub">lift_pp · lift_ci_pp · base/skill_pass_rate</text>
+    <text x="585" y="388" text-anchor="middle" class="sub">bootstrap 95% CI · calibration_ok</text>
+  </g>
+
+  <!-- Arrows: top half -->
+  <path class="arrow" d="M 110 160 L 110 200"/>
+  <path class="arrow" d="M 110 280 L 110 320"/>
+
+  <!-- Eval arrows -->
+  <path class="arrow-accent" d="M 190 380 Q 320 380 320 280 L 440 280"/>
+  <text x="240" y="370" class="arrow-text" style="fill:#c4b5fd">load + score</text>
+
+  <path class="arrow-accent" d="M 585 280 L 585 320"/>
+  <text x="595" y="304" class="arrow-text" style="fill:#c4b5fd">persist</text>
+
+  <!-- External providers -->
+  <g filter="url(#shadow)">
+    <rect x="270" y="370" width="220" height="56" class="box"/>
+    <text x="380" y="394" text-anchor="middle" class="lbl">LLM provider</text>
+    <text x="380" y="412" text-anchor="middle" class="sub">OpenRouter · MiniMax · Kimi · custom</text>
+  </g>
+  <path class="arrow-dashed" d="M 110 240 Q 200 240 200 396 L 270 396"/>
+  <text x="180" y="324" class="arrow-text">calls</text>
+
+  <!-- Footer badge -->
+  <rect x="220" y="438" width="320" height="14" rx="3" fill="#21262d" opacity="0.6"/>
+  <text x="380" y="448" text-anchor="middle" class="sub">the only SKILL.md studio that proves your skill makes the model better</text>
+</svg>
