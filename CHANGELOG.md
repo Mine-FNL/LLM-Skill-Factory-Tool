@@ -4,7 +4,57 @@ All notable changes to **LLM Skill Factory** are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/) and the project adheres
 to [Semantic Versioning](https://semver.org/).
 
-## [0.2.0] — Unreleased
+## [0.3.0] — Unreleased
+
+**Headline: prove your skill makes the model better, with numbers.**
+
+The eval harness turns "I think my skill helps" into "your skill improves
+Claude Sonnet 4.6 by **+42.9pp** on the held-out set, 95% CI [+15, +70]."
+
+### Added
+- **`skill_factory.eval`** — new package with:
+  - `EvalSet` / `EvalPrompt` / `JudgeConfig` dataclasses, YAML loader, runner,
+    judge wrapper, and CLI dispatch.
+  - `run_eval()` runs the base model and base+skill arms on every prompt in an
+    eval set, calls an LLM-as-judge to score each output against the prompt's
+    expected traits, computes pass-rates, the **lift in percentage points**, and
+    a bootstrap 95% CI (1000 resamples by default, deterministic seed).
+  - `parse_score()` is strict: unparseable judge verdicts default to 0 (never
+    silently coerced to a pass), so a flaky judge can never inflate the lift.
+  - `save_report_to_skill_meta()` persists the report into `metadata.json` and
+    surfaces the latest snapshot (`lift_pp`, `lift_ci_pp`, `base_pass_rate`,
+    `skill_pass_rate`, `last_eval_set`, `last_eval_at`) at the top level for
+    fast library-card reads. History is capped at 20 reports.
+  - New CLI: `python -m skill_factory eval <slug> [--eval-set NAME]
+    [--model X] [--judge-model Y] [--save] [--json] [--dry-run]`.
+- **Three reference eval sets** under `evals/`:
+  - `backend-api-engineer.yaml` (7 prompts about API design, idempotency,
+    pagination, error contracts, version deprecation, authn/authz, rate
+    limiting, schema evolution).
+  - `quant-research-analyst.yaml` (6 prompts about Sharpe pitfalls, factor vs
+    alpha claims, multiple comparisons, survivorship, look-ahead, capacity).
+  - `financial-statement-analyst.yaml` (6 prompts about revenue vs cash,
+    EBITDA vs cash flow, goodwill, lease capitalisation, quality of earnings,
+    off-balance-sheet SPEs).
+- **`SkillMeta` fields** (with defaults for backward compatibility):
+  `eval_results`, `lift_pp`, `lift_ci_pp`, `base_pass_rate`, `skill_pass_rate`,
+  `last_eval_set`, `last_eval_at`. Older `metadata.json` files without these
+  fields round-trip cleanly.
+- **Tests**: 42 new test cases covering bootstrap-CI math (zero lift, positive
+  lift, negative lift, deterministic seeds, edge cases), judge score parsing
+  (legal / unparseable / out-of-range), YAML loader, end-to-end runner flow
+  with a scripted fake client, metadata persistence + history cap + older
+  metadata round-trip, and the CLI default-set selection logic.
+- **README**: a new "Measuring a skill (eval harness)" section with example
+  output; the headline now calls out the eval feature.
+
+### Why this matters
+The whole pitch of the tool is "structured generation beats one-shot prompting."
+Until now there was no way to measure that claim. The eval harness turns the
+thesis into a number per skill, with a confidence interval — and the eval
+prompts themselves accumulate as a defensible asset over time.
+
+## [0.2.0] — 2026-09-16
 
 Production-readiness release. The core package and the Streamlit UI are now
 ready for multi-user / containerised deployments.

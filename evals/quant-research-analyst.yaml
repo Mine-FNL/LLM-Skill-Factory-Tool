@@ -1,0 +1,75 @@
+name: quant-research-analyst
+description: Held-out prompts for the quant-research-analyst skill. Each prompt asks the model to scrutinise a quantitative claim or design; the expected traits are the watchpoints a skeptical quant researcher would raise.
+version: 1
+pass_threshold: 0.5
+judge:
+  prompt: |
+    You are an expert evaluator. You will be given a prompt, a list of expected traits
+    that a high-quality response should exhibit, and an actual response. Score the
+    response on a 3-point scale:
+      1.0 — ALL expected traits are substantively addressed.
+      0.5 — at least half (rounded up) of the traits are addressed.
+      0.0 — fewer than half are addressed.
+    Output ONLY the score: a single number (0, 0.5, or 1). No commentary.
+prompts:
+  - id: sharpe-without-vol-scaling
+    prompt: |
+      A junior analyst reports Sharpe = 2.4 over a 6-month backtest on daily returns.
+      They want to size the strategy at 20% of AUM. What questions would you ask
+      before approving?
+    expected_traits:
+      - "Asks about annualisation convention (Sharpe on daily vs annual)"
+      - "Asks about the number of trades / effective sample size"
+      - "Asks about transaction costs and slippage assumed (or not)"
+      - "Flags look-ahead / survivorship bias in the universe construction"
+      - "Asks for out-of-sample or walk-forward evidence"
+
+  - id: factor-vs-alpha-claim
+    prompt: |
+      A PM says: 'Our signal returns 18% alpha over the SPY, uncorrelated to value
+      and momentum.' How would you stress-test this claim?
+    expected_traits:
+      - "Replicates the factor decomposition (Fama-French + momentum)"
+      - "Checks factor loadings explicitly; flags if alpha is just factor exposure"
+      - "Tests robustness across regimes (2008, 2020, 2022)"
+      - "Considers transaction-cost-adjusted alpha"
+      - "Demands out-of-sample and paper-trading evidence before sizing"
+
+  - id: overfit-on-noise
+    prompt: |
+      I searched 200 technical indicators and picked the one with the highest Sharpe
+      in-sample. What's wrong with this approach?
+    expected_traits:
+      - "Multiple-comparisons bias / p-hacking"
+      - "No out-of-sample validation"
+      - "In-sample Sharpe is upward-biased by selection"
+      - "Recommends a held-out test or cross-validation"
+      - "Mentions deflated Sharpe ratio or similar adjustments"
+
+  - id: survivorship-bias
+    prompt: |
+      Our equity backtest universe is 'all stocks in the SP500 over the last 20
+      years'. What's wrong?
+    expected_traits:
+      - "Survivorship bias — today's SP500 is not the same membership as 2005"
+      - "Delisted stocks are missing from the dataset entirely"
+      - "Biases returns upward (winners stay, losers vanish)"
+      - "Recommends a point-in-time universe with delisting returns"
+
+  - id: look-ahead-in-fundamentals
+    prompt: |
+      We use P/E as of today for every backtest date. What's the problem?
+    expected_traits:
+      - "Look-ahead bias — P/E on day T should be computed from data available on day T"
+      - "Today's P/E includes future earnings revisions"
+      - "Recommends using lagged fundamentals (point-in-time)"
+      - "Quantifies the size of the bias if possible"
+
+  - id: capacity-and-impact
+    prompt: |
+      Strategy alpha is 12%/year on $1M of capital. Can we run it at $500M?
+    expected_traits:
+      - "Mentions market impact / capacity constraints"
+      - "Notes that alpha scales sublinearly with size"
+      - "Discusses liquidity of the traded names"
+      - "Recommends a participation-rate cap or a capacity study"

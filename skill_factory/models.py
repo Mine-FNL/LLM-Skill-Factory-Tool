@@ -91,6 +91,16 @@ class SkillMeta:
     model: str = ""  # model used to generate this version
     created_at: float = field(default_factory=time.time)
     test_results: list[TestResult] = field(default_factory=list)
+    # --- eval harness fields (v0.3+) ---
+    # History of eval reports (most recent first when serialised).
+    eval_results: list[dict[str, Any]] = field(default_factory=list)
+    # Latest snapshot — convenient for the library card without scanning history.
+    lift_pp: float = 0.0
+    lift_ci_pp: tuple[float, float] = (0.0, 0.0)
+    base_pass_rate: float = 0.0
+    skill_pass_rate: float = 0.0
+    last_eval_set: str = ""
+    last_eval_at: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -104,6 +114,10 @@ class SkillMeta:
         known = set(cls.__dataclass_fields__)  # type: ignore[attr-defined]
         meta = cls(**{k: v for k, v in data.items() if k in known})
         meta.test_results = [TestResult.from_dict(r) for r in raw_results]
+        # ``lift_ci_pp`` is a tuple — coerce from list if it round-tripped through JSON.
+        ci = meta.lift_ci_pp
+        if isinstance(ci, list):
+            meta.lift_ci_pp = (float(ci[0]), float(ci[1])) if len(ci) == 2 else (0.0, 0.0)
         return meta
 
     @classmethod

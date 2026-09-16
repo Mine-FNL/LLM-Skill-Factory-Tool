@@ -12,6 +12,12 @@ endpoint (bring your own API key).
 > The leverage comes from a strong built-in **meta-skill** plus a **multi-stage,
 > human-in-the-loop** pipeline — structured generation beats one-shot prompting.
 
+> 🆕 **v0.3 ships an eval harness.** Every skill can now be measured: the harness runs the
+> base model vs. base+skill on a held-out prompt set and reports the lift with a bootstrap
+> 95% CI. Run it as
+> `python -m skill_factory eval <slug> --save` and the lift shows up on the skill card.
+> **Prove your skill makes the model better — with numbers.**
+
 > 🆕 **New to Python or the command line?** Follow the step-by-step
 > **[Installation Guide → INSTALL.md](INSTALL.md)**, which walks you through everything from zero.
 
@@ -23,6 +29,9 @@ endpoint (bring your own API key).
 
 ## Features
 
+- **Eval harness with bootstrap 95% CI** — measure the lift of any skill over the base model on
+  a held-out prompt set. Three reference eval sets ship (`backend-api-engineer`,
+  `quant-research-analyst`, `financial-statement-analyst`); add your own YAML.
 - **Multi-stage generation pipeline** with approval gates: *outline → (optional) context →
   draft → refine → validate → save*.
 - **Skill types**: domain-expert, specialist, workflow, hybrid.
@@ -175,6 +184,58 @@ make typecheck         # mypy on skill_factory/
 The core package [`skill_factory/`](skill_factory/) contains all logic and has **no Streamlit
 imports**, so it is fully unit-testable and reusable outside the UI. The Streamlit layer lives in
 [`ui/`](ui/) and [`app.py`](app.py).
+
+### Measuring a skill (eval harness)
+
+The eval harness runs an LLM-as-judge comparison of the base model vs. base+skill on a held-out
+prompt set, computes the pass-rate lift, and reports a bootstrap 95% CI.
+
+```bash
+# Dry-run: show what would be evaluated without any LLM calls.
+python -m skill_factory eval backend-api-engineer --dry-run
+
+# Full run with a specific model + save the report into metadata.json.
+python -m skill_factory eval backend-api-engineer \
+    --model anthropic/claude-sonnet-4.6 \
+    --judge-model anthropic/claude-sonnet-4.6 \
+    --save
+```
+
+Output (trimmed):
+
+```
+▶ evaluating 'backend-api-engineer' v1 on 'backend-api-engineer' (7 prompts)…
+
+  eval set : backend-api-engineer (n=7)
+  eval model: anthropic/claude-sonnet-4.6
+  judge     : anthropic/claude-sonnet-4.6
+
+  base pass  :   42.9%
+  skill pass :   85.7%
+  lift       :  +42.9pp
+  95% CI     : [+15.0, +70.0]pp (bootstrap n=1000)
+
+  prompt_id                       base skill  lift
+  ----------------------------------------------------
+  idempotency-on-money-move          ✗     ✓   +100
+  pagination-at-scale                ✗     ✓   +100
+  error-contract-shape               ✓     ✓     +0
+  version-deprecation                ✗     ✓   +100
+  authn-vs-authz                     ✗     ✓   +100
+  rate-limit-feedback                ✗     ✓   +100
+  schema-evolution                   ✗     ✗     +0
+
+  ✓ lift > 0
+```
+
+Three reference eval sets ship in [`evals/`](evals/). Add your own YAMLs:
+
+```bash
+ls evals/        # backend-api-engineer.yaml, quant-research-analyst.yaml, financial-statement-analyst.yaml
+```
+
+The schema is small — see the shipped YAMLs for the full shape. The judge prompt is configurable
+per-set (default: 3-point scale, strict numeric output).
 
 ## Production deployment
 

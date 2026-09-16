@@ -1,0 +1,77 @@
+name: financial-statement-analyst
+description: Held-out prompts for the financial-statement-analyst skill. Each prompt asks the model to scrutinise a financial claim; the expected traits are the cross-checks a rigorous fundamental analyst would perform.
+version: 1
+pass_threshold: 0.5
+judge:
+  prompt: |
+    You are an expert evaluator. You will be given a prompt, a list of expected traits
+    that a high-quality response should exhibit, and an actual response. Score the
+    response on a 3-point scale:
+      1.0 — ALL expected traits are substantively addressed.
+      0.5 — at least half (rounded up) of the traits are addressed.
+      0.0 — fewer than half are addressed.
+    Output ONLY the score: a single number (0, 0.5, or 1). No commentary.
+prompts:
+  - id: revenue-vs-cash-receipts
+    prompt: |
+      A company grew revenue 25% YoY but operating cash flow grew only 4%. What
+      would you investigate?
+    expected_traits:
+      - "Investigates receivables (DSO increase suggests channel-stuffing)"
+      - "Looks at deferred revenue (could be genuine but watch)"
+      - "Compares accrued revenue vs cash collections"
+      - "Considers one-off items in operating cash flow"
+      - "Distinguishes timing vs quality of earnings"
+
+  - id: ebitda-vs-cash-flow
+    prompt: |
+      A company reports EBITDA of $500M but operating cash flow is only $120M.
+      What explains the gap?
+    expected_traits:
+      - "Working-capital build (inventory, receivables)"
+      - "Stock-based compensation excluded from EBITDA but real cash impact"
+      - "Lease accounting (operating leases were off-BS pre-ASC842)"
+      - "Restructuring / one-time items added back to EBITDA"
+      - "Concludes EBITDA overstates cash-generating ability"
+
+  - id: goodwill-impairment
+    prompt: |
+      A company just took a $2B goodwill impairment. A buy-side analyst says
+      'that's a non-cash charge, ignore it.' Do you agree?
+    expected_traits:
+      - "Disagrees — the impairment signals a failed acquisition and lower future returns"
+      - "Notes that the overpayment happened at acquisition, not now"
+      - "Suggests computing ROIC excluding the impaired goodwill"
+      - "Considers management's prior projections vs current reality"
+      - "May be partially non-cash but informationally material"
+
+  - id: lease-capitalisation
+    prompt: |
+      Two retailers, A and B, have identical EBITDA. A capitalises its operating
+      leases, B doesn't. Compare their true leverage.
+    expected_traits:
+      - "A's capitalised leases add to debt; B's do not"
+      - "Compares EBITDAR / rent-adjusted leverage ratios"
+      - "Notes interest coverage is overstated for B"
+      - "Concludes A is the more conservative balance sheet"
+
+  - id: quality-of-earnings
+    prompt: |
+      How would you assess 'quality of earnings' on a financial statement?
+    expected_traits:
+      - "Recurring vs non-recurring revenue / income"
+      - "Cash conversion (CFO / net income)"
+      - "Accruals (low accruals = higher quality)"
+      - "Revenue recognition policies and channel checks"
+      - "Compares to peer benchmarks"
+
+  - id: off-balance-sheet
+    prompt: |
+      The CFO says 'we have no debt — everything is off-balance-sheet via
+      special-purpose entities.' Is that a red flag?
+    expected_traits:
+      - "Yes — SPEs can hide leverage and risk"
+      - "Notes historical examples (Enron) where SPEs concealed obligations"
+      - "Demands consolidation analysis under ASC 810"
+      - "Looks at guarantees, commitments, and contingent liabilities"
+      - "Adjusts leverage ratios to include likely SPE debt"

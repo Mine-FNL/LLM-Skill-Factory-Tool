@@ -1,0 +1,87 @@
+name: backend-api-engineer
+description: Held-out prompts for the backend-api-engineer skill. Each prompt asks the model to design or review a real-world API decision; the expected traits are the things a senior backend engineer would address.
+version: 1
+pass_threshold: 0.5
+judge:
+  prompt: |
+    You are an expert evaluator. You will be given a prompt, a list of expected traits
+    that a high-quality response should exhibit, and an actual response. Score the
+    response on a 3-point scale:
+      1.0 — ALL expected traits are substantively addressed.
+      0.5 — at least half (rounded up) of the traits are addressed.
+      0.0 — fewer than half are addressed.
+    Output ONLY the score: a single number (0, 0.5, or 1). No commentary.
+prompts:
+  - id: idempotency-on-money-move
+    prompt: |
+      Design a POST /transfers endpoint for moving money between two internal accounts.
+      What status code should it return on success, and how does it handle a duplicate
+      request from a client that retried after a network blip?
+    expected_traits:
+      - "Discusses idempotency keys or Idempotency-Key headers"
+      - "Specifies the response is identical for the original and the duplicate"
+      - "Mentions at-least-once delivery semantics and why retries are unsafe without idempotency"
+      - "Names a concrete status code (e.g. 200/201/202) and explains the choice"
+
+  - id: pagination-at-scale
+    prompt: |
+      We're building a public REST API that returns a list of invoices. Some accounts
+      have 10 million invoices. Compare offset pagination vs cursor pagination for this
+      case, and recommend one.
+    expected_traits:
+      - "Compares offset and cursor pagination explicitly"
+      - "Mentions performance / deep-page cost of offset pagination"
+      - "Mentions consistency guarantees (cursor stable under inserts; offset can skip or duplicate)"
+      - "Makes a recommendation and justifies it"
+
+  - id: error-contract-shape
+    prompt: |
+      Our API returns a JSON error body today. We're seeing clients silently swallow
+      5xx responses. Propose a stricter error response contract that helps clients
+      distinguish retriable from non-retriable failures.
+    expected_traits:
+      - "Proposes a structured error body (machine-readable code + human message)"
+      - "Distinguishes retriable vs non-retriable categories"
+      - "Includes a request id / correlation id for support"
+      - "Maps 4xx vs 5xx semantics correctly"
+
+  - id: version-deprecation
+    prompt: |
+      We need to remove a field from /users/{id} response. Walk me through a
+      backwards-compatible deprecation plan.
+    expected_traits:
+      - "Adds the new field alongside the old; doesn't remove immediately"
+      - "Adds a Deprecation / Sunset header per RFC 8594"
+      - "Communicates timeline to API consumers (changelog, email, dashboard)"
+      - "Removes the field only after an announced grace period"
+
+  - id: authn-vs-authz
+    prompt: |
+      A teammate says 'we don't need authorization, the API gateway authenticates the
+      request'. Push back.
+    expected_traits:
+      - "Distinguishes authentication (who) from authorization (what they may do)"
+      - "Notes that authn tells you the caller, not whether they own the resource"
+      - "Cites at least one real-world failure mode (e.g. IDOR, tenant leak)"
+      - "Recommends per-resource authorization checks at the handler"
+
+  - id: rate-limit-feedback
+    prompt: |
+      A client complains that they're getting 429s unpredictably. How should we
+      design the rate-limit response so a well-behaved client can self-throttle?
+    expected_traits:
+      - "Includes Retry-After header"
+      - "Exposes remaining quota (X-RateLimit-Remaining) and reset time"
+      - "Uses 429 with a structured error body"
+      - "Explains the distinction between per-second and per-day buckets if relevant"
+
+  - id: schema-evolution
+    prompt: |
+      Marketing wants to add a 'tier' field to the User object, and the existing
+      'plan' field is already in use. How do we evolve the schema without breaking
+      clients?
+    expected_traits:
+      - "Adds 'tier' as a new field, doesn't repurpose 'plan'"
+      - "Marks 'plan' as deprecated with a removal date"
+      - "Considers versioning strategy (URL path vs header)"
+      - "Writes a migration guide for clients"
