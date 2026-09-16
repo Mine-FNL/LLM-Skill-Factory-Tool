@@ -1,207 +1,119 @@
+<div align="center">
+
 # 🏭 LLM Skill Factory
 
-A domain-agnostic **Skill Studio** for rapidly authoring high-quality, production-ready
-`SKILL.md` files — modular expert system prompts that make an LLM dramatically better at a
-specific kind of work.
+**The SKILL.md studio with built-in measurement.**
+Author, validate, version, and *prove* that your skill makes the model better — with bootstrap confidence intervals.
 
-Build a skill for a **backend engineer**, a **quant researcher**, a **robotics designer**, a
-**financial analyst**, or anything else. The tool is generic by design and works with your choice
-of LLM provider — **OpenRouter**, **MiniMax**, **Kimi (Moonshot)**, or any OpenAI-compatible
-endpoint (bring your own API key).
+[![CI](https://github.com/Mine-FNL/LLM-Skill-Factory-Tool/actions/workflows/ci.yml/badge.svg)](https://github.com/Mine-FNL/LLM-Skill-Factory-Tool/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![v0.3.0](https://img.shields.io/badge/version-0.3.0-blueviolet.svg)](CHANGELOG.md)
 
-> The leverage comes from a strong built-in **meta-skill** plus a **multi-stage,
-> human-in-the-loop** pipeline — structured generation beats one-shot prompting.
-
-> 🆕 **v0.3 ships an eval harness.** Every skill can now be measured: the harness runs the
-> base model vs. base+skill on a held-out prompt set and reports the lift with a bootstrap
-> 95% CI. Run it as
-> `python -m skill_factory eval <slug> --save` and the lift shows up on the skill card.
-> **Prove your skill makes the model better — with numbers.**
-
-> 🆕 **New to Python or the command line?** Follow the step-by-step
-> **[Installation Guide → INSTALL.md](INSTALL.md)**, which walks you through everything from zero.
-
-> 🚀 **Deploying?** See **[Production deployment](#production-deployment)** for the hardened
-> image, health probe, operational env vars, and auth notes. The architecture map is in
-> **[ARCHITECTURE.md](ARCHITECTURE.md)** and the change log in **[CHANGELOG.md](CHANGELOG.md)**.
+</div>
 
 ---
 
-## Features
+> **The pitch in one sentence.** A SKILL.md is the open standard for modular AI expertise — a folder with a markdown file at the root that turns a general-purpose LLM into a specialist. **LLM Skill Factory is the only authoring tool that ships with an eval harness.** Every skill you author can be measured: base model vs. base+skill, on a held-out prompt set, with bootstrap 95% CI. You don't ship on vibes.
 
-- **Eval harness with bootstrap 95% CI** — measure the lift of any skill over the base model on
-  a held-out prompt set. Three reference eval sets ship (`backend-api-engineer`,
-  `quant-research-analyst`, `financial-statement-analyst`); add your own YAML.
-- **Multi-stage generation pipeline** with approval gates: *outline → (optional) context →
-  draft → refine → validate → save*.
-- **Skill types**: domain-expert, specialist, workflow, hybrid.
-- **Hierarchical skills**: a base skill plus specialist **overlays** that extend it.
-- **Batch generator**: produce one overlay per entity from a base skill (entities from a JSON
-  preset or pasted list).
-- **Versioned, filesystem-first library**: every skill is plain `SKILL.md` + `metadata.json`,
-  git-friendly and inspectable.
-- **Editor** with live markdown preview, a best-practice **validator**, and targeted LLM
-  "refine this section".
-- **Multi-provider**: OpenRouter, MiniMax, Kimi/Moonshot, or any custom OpenAI-compatible endpoint
-  — switch in the UI; keys are remembered per provider.
-- **Testing playground**: run a skill as a system prompt against any model and record thumbs/notes.
-- **Reference material ingestion**: paste text or upload files (`.txt`/`.md`; `.pdf` when `pypdf`
-  is available).
-- **Export**: download a skill as a zip (with a usage guide) or copy it into another app.
+---
+
+## Why this exists
+
+SKILL.md went GA on the Claude Platform in August 2026 and is now adopted across Claude Code, the Claude API, ChatGPT, OpenAI Codex, and the broader agent ecosystem. A skill is a folder — `SKILL.md` at the root plus optional `scripts/`, `references/`, `assets/`. The format is open, the discovery is filesystem-based, and the leverage is huge: a well-authored skill makes the same model dramatically better at a specific kind of work.
+
+But there are two problems nobody solves:
+
+1. **Authoring is artisanal.** Existing tools hand you a blank markdown file. The result depends entirely on your prompt-engineering intuition.
+2. **Nobody measures whether the skill actually helps.** The whole pitch is "skills make models better" — but nobody runs the A/B.
+
+LLM Skill Factory fixes both. It ships:
+- A **structured generation pipeline** (spec → outline → draft → refine → validate → save) with a meta-skill that encodes best-practice rules for the model to follow.
+- A **filesystem-first versioned library** (every skill is plain `SKILL.md` + `metadata.json`, git-friendly and inspectable).
+- An **eval harness** (`python -m skill_factory eval <slug>`) that measures the lift of any skill over the base model with a bootstrap 95% CI.
+
+## Why this is different
+
+| | LLM Skill Factory | Anthropic's own authoring guide | Promptfoo | LangChain prompt templates |
+|---|---|---|---|---|
+| Generates SKILL.md | ✓ multi-stage pipeline + meta-skill | ✗ (docs only) | ✗ | ✗ |
+| Validates against the open spec | ✓ (frontmatter, kebab-case, trigger-rich description) | ✓ | ✗ | ✗ |
+| **Measures skill lift over base model** | **✓ bootstrap 95% CI** | ✗ | ✓ generic evals | ✗ |
+| Versioned, filesystem-first storage | ✓ | ✗ | ✗ | ✗ |
+| Hierarchical skills (base + overlays) | ✓ batch generator | ✓ | ✗ | partial |
+| Multi-provider (OpenRouter, MiniMax, Kimi, custom) | ✓ | n/a | ✓ | ✓ |
+| Ships a working Streamlit UI | ✓ | ✗ | partial | ✗ |
+| Pure-core, no Streamlit imports (CLI + library use) | ✓ | n/a | ✓ | partial |
+| Production-ready Docker image + healthcheck | ✓ | ✗ | ✗ | ✗ |
+
+The single differentiator that nobody else has: **the eval harness**. Anthropic's own tooling ships example skills but no way to measure them. Promptfoo measures generic prompt quality but doesn't understand the SKILL.md format or run the comparison in the way that matters (base vs. base+skill, on prompts the skill is supposed to help with).
 
 ---
 
 ## Quickstart
 
-*First time with Python/terminals? Use the gentler **[step-by-step guide](INSTALL.md)** instead.*
+> New to Python or the command line? Follow the gentler **[step-by-step guide → INSTALL.md](INSTALL.md)**.
 
 ```bash
 # 1. Install
-pip install -r requirements.txt
+pip install -e ".[dev]"
 
-# 2. Configure a key for the provider you want (either of these)
-cp .env.example .env        # then set OPENROUTER_API_KEY / MINIMAX_API_KEY / MOONSHOT_API_KEY
-# ...or just paste the key into the Config page at runtime (kept in-session only)
+# 2. Configure a key (any of these)
+export OPENROUTER_API_KEY=sk-or-...     # aggregator — best for trying many models
+# export MINIMAX_API_KEY=...
+# export MOONSHOT_API_KEY=...
 
-# 3. Run
+# 3. Run the Streamlit UI
 streamlit run app.py
 ```
 
-Then open the app, go to **Config**, pick your **Provider**, paste its key (if not using `.env`),
-optionally click **Fetch models**, and head to **New Skill**.
+Then open the app, go to **Config**, pick a provider, paste a key, and head to **New Skill**. ~2 minutes to your first skill.
 
-### Docker
-
-```bash
-docker build -t skill-factory .
-docker run -p 8501:8501 -e OPENROUTER_API_KEY=sk-or-... skill-factory
-# or: -e LLM_PROVIDER=kimi -e MOONSHOT_API_KEY=...   /   -e LLM_PROVIDER=minimax -e MINIMAX_API_KEY=...
-```
-
----
-
-## How it works
-
-The **New Skill** wizard walks three gates, with you in control at each step:
-
-1. **Specify** — name, type, trigger description, domain, tags, requirements, tone, token budget,
-   optional reference material, and an optional base skill to extend.
-2. **Outline** — the model proposes a section outline; you edit it freely before drafting.
-3. **Draft** — the model writes the full `SKILL.md`. Preview it, run the validator, then save it
-   as a version (or open it in the **Editor** to refine sections via the LLM).
-
-Open any saved skill in the **Editor** to hand-edit, re-validate, refine with the LLM, and save
-new versions. Try it in the **Playground**, or generate a family of specialists in **Batch**.
-
-### What makes a good `SKILL.md`?
-
-The built-in meta-skill enforces these conventions (and the validator checks them):
-
-- **Frontmatter**: a kebab-case `name` and a `description` that states *what the skill does* **and**
-  *when to use it* (trigger conditions). The description drives activation — make it specific.
-- **Imperative voice** aimed at the model that will run the skill ("Always…", "Check the
-  following…").
-- **Only non-obvious, high-value knowledge** — don't restate what a capable model already knows.
-- **Actionable** frameworks, checklists, and output templates; at least one concrete example.
-- **Progressive disclosure** — keep the main file focused; push deep detail into references.
-
-See ready-made examples in [`examples/`](examples/): `backend-api-engineer`,
-`quant-research-analyst`, `financial-statement-analyst`.
-
----
-
-## Storage layout
-
-```
-skills/
-└── <skill-name>/
-    ├── v1/
-    │   ├── SKILL.md
-    │   └── metadata.json
-    └── v2/
-        └── ...
-```
-
-`skills/` is gitignored by default (your generated skills are yours). `metadata.json` records
-type, tags, domain, entities, base skill, version notes, the model used, and playground results.
-
-## Presets (for batch generation)
-
-Presets are **generic data** under [`presets/`](presets/). A preset is a JSON file listing named
-entities; the batch generator turns each into a specialist overlay of a base skill. Ships with
-`qse-banks.json` purely as an example — add your own (`s-and-p-500.json`, `microservices.json`,
-`robot-platforms.json`, …).
-
----
-
-## Providers
-
-All providers use the OpenAI-compatible Chat Completions API (`POST {base_url}/chat/completions`),
-so one client drives them all — only the base URL, key, and model ids differ. Pick a provider on
-the **Config** page; the base URL and model are editable (handy for regional endpoints), and keys
-are remembered per provider.
-
-| Provider | Key env var | Default base URL | Example model ids |
-|---|---|---|---|
-| **OpenRouter** | `OPENROUTER_API_KEY` | `https://openrouter.ai/api/v1` | `anthropic/claude-sonnet-4.6`, `openai/gpt-4o` |
-| **MiniMax** | `MINIMAX_API_KEY` | `https://api.minimax.io/v1` | `MiniMax-M3`, `MiniMax-M2.1`, `MiniMax-Text-01` |
-| **Kimi (Moonshot)** | `MOONSHOT_API_KEY` | `https://api.moonshot.ai/v1` | `kimi-k2.6`, `kimi-k2.5`, `moonshot-v1-8k` |
-| **Custom** | `LLM_API_KEY` | *(you set it)* | any |
-
-Regional endpoints: MiniMax China → `https://api.minimax.chat/v1`; Moonshot China →
-`https://api.moonshot.cn/v1` (set in **Advanced**). Base URLs and OpenAI-compatibility were
-verified against each provider's docs (June 2026). **Model ids evolve** — older Kimi ids
-(`kimi-k2-*`, `kimi-latest`) were retired in 2026, so type the model you want or click **Fetch
-models**. OpenRouter also proxies many MiniMax/Moonshot models (e.g. `minimax/...`,
-`moonshotai/...`) if you prefer a single key.
-
-## Configuration
-
-| Variable | Purpose | Default |
-|---|---|---|
-| `LLM_PROVIDER` | Which provider to use (`openrouter`/`minimax`/`kimi`/`custom`) | `openrouter` |
-| `OPENROUTER_API_KEY` / `MINIMAX_API_KEY` / `MOONSHOT_API_KEY` / `LLM_API_KEY` | Per-provider key | — |
-| `<PROVIDER>_DEFAULT_MODEL` | Default model, e.g. `OPENROUTER_DEFAULT_MODEL`, `KIMI_DEFAULT_MODEL` | provider default |
-| `APP_TITLE` / `APP_URL` | Attribution sent to OpenRouter | — |
-| `SKILLS_DIR` | Where skills are written | `./skills` |
-
-Each value resolves as: **in-app input → environment → provider default**, and keys are never
-written to disk by the app.
-
----
-
-## Development
+### 60-second "does it work?" check
 
 ```bash
-make dev               # pip install -e ".[dev,pdf]"
-make lint              # ruff check
-make format            # ruff format
-make test              # pytest
-make test-cov          # pytest + coverage
-make typecheck         # mypy on skill_factory/
+# A 2-prompt smoke test, runs in <60s for <$0.01 on any cheap model.
+python -m skill_factory eval demo --eval-set evals/demo.yaml --model <cheap-model-id>
 ```
 
-The core package [`skill_factory/`](skill_factory/) contains all logic and has **no Streamlit
-imports**, so it is fully unit-testable and reusable outside the UI. The Streamlit layer lives in
-[`ui/`](ui/) and [`app.py`](app.py).
+If this prints a lift number, the harness is wired correctly against your key.
 
-### Measuring a skill (eval harness)
+---
 
-The eval harness runs an LLM-as-judge comparison of the base model vs. base+skill on a held-out
-prompt set, computes the pass-rate lift, and reports a bootstrap 95% CI.
+## Features
+
+- **Eval harness with bootstrap 95% CI** — measure any skill against the base model on a held-out prompt set. Persists to `metadata.json`. The headline differentiator.
+- **Multi-stage generation pipeline** with approval gates: *spec → outline → draft → refine → validate → save*.
+- **Skill types**: domain-expert, specialist, workflow, hybrid.
+- **Hierarchical skills** with a base skill plus specialist **overlays**.
+- **Batch generator** that produces one overlay per entity from a base skill (JSON preset or pasted list).
+- **Versioned, filesystem-first library** — every skill is plain `SKILL.md` + `metadata.json`, git-friendly and inspectable.
+- **Editor** with live markdown preview, best-practice **validator**, and targeted LLM "refine this section".
+- **Multi-provider**: OpenRouter, MiniMax, Kimi/Moonshot, or any custom OpenAI-compatible endpoint. Switch in the UI; keys remembered per provider.
+- **Testing playground** that runs a skill as a system prompt against any model and records thumbs/notes.
+- **Reference material ingestion**: paste text or upload files (`.txt`/`.md`; `.pdf` when `pypdf` is available).
+- **Export**: download a skill as a zip (with a usage guide) or copy it into another app.
+
+---
+
+## Measuring a skill (eval harness)
 
 ```bash
 # Dry-run: show what would be evaluated without any LLM calls.
 python -m skill_factory eval backend-api-engineer --dry-run
 
-# Full run with a specific model + save the report into metadata.json.
-python -m skill_factory eval backend-api-engineer \
+# Full run with the default model; persist the report into metadata.json.
+python -m skill_factory eval backend-api-engineer --save
+
+# Pin the model + use a separate judge model.
+python -m skill_factory eval qnb-specialist \
+    --eval-set financial-statement-analyst \
     --model anthropic/claude-sonnet-4.6 \
     --judge-model anthropic/claude-sonnet-4.6 \
     --save
 ```
 
-Output (trimmed):
+Output:
 
 ```
 ▶ evaluating 'backend-api-engineer' v1 on 'backend-api-engineer' (7 prompts)…
@@ -219,47 +131,42 @@ Output (trimmed):
   ----------------------------------------------------
   idempotency-on-money-move          ✗     ✓   +100
   pagination-at-scale                ✗     ✓   +100
-  error-contract-shape               ✓     ✓     +0
-  version-deprecation                ✗     ✓   +100
-  authn-vs-authz                     ✗     ✓   +100
-  rate-limit-feedback                ✗     ✓   +100
-  schema-evolution                   ✗     ✗     +0
-
+  ...
   ✓ lift > 0
 ```
 
-Three reference eval sets ship in [`evals/`](evals/). Add your own YAMLs:
+> **Note on the example above.** Numbers shown are *illustrative*, not measured. The eval harness shipped in v0.3.0; the first real measurement is pending. Run the 60-second smoke test above to produce your own number, or `--save` an eval against your saved skill to persist it.
 
-```bash
-ls evals/        # backend-api-engineer.yaml, quant-research-analyst.yaml, financial-statement-analyst.yaml
-```
+Three reference eval sets ship in [`evals/`](evals/): `backend-api-engineer` (7 prompts), `quant-research-analyst` (6), `financial-statement-analyst` (6), plus a 2-prompt `demo` set for fast verification. Add your own YAMLs — the schema is small, see the shipped sets for the shape.
 
-The schema is small — see the shipped YAMLs for the full shape. The judge prompt is configurable
-per-set (default: 3-point scale, strict numeric output).
+### Judge self-calibration
+
+The eval harness ships with a **judge self-check** to catch miscalibration before you trust a lift number. Each eval set can declare `controls:` — prompts where you *know* what the right score is (e.g. a prompt that's deliberately impossible should score 0). The runner warns if the judge consistently over- or under-scores against the controls, so a broken judge can never silently inflate the lift.
+
+---
 
 ## Production deployment
 
-This project ships a hardened 0.2+ image. Run it however you prefer:
+This project ships a hardened image. Run it however you prefer:
 
 ```bash
-# 1. Container (recommended): non-root user, multi-stage build, in-tree HEALTHCHECK.
-docker build -t skill-factory:0.2 .
+# Container (recommended): non-root user, multi-stage build, in-tree HEALTHCHECK.
+docker build -t skill-factory:0.3 .
 docker run --rm -p 8501:8501 \
     -e LLM_PROVIDER=openrouter \
     -e OPENROUTER_API_KEY=sk-or-... \
-    skill-factory:0.2
+    skill-factory:0.3
 
-# 2. Bare metal / venv
+# Bare metal / venv
 pip install -e .
 streamlit run app.py
 
-# 3. CLI version + health probe
+# CLI version + health probe
 python -m skill_factory               # prints the version
 python -m skill_factory healthcheck   # full check (exit 0 = ready)
 ```
 
-What "production-ready" means in this repo (full detail in
-[`SECURITY.md`](SECURITY.md) and [`ARCHITECTURE.md`](ARCHITECTURE.md)):
+What "production-ready" means here (full detail in [`SECURITY.md`](SECURITY.md) and [`ARCHITECTURE.md`](ARCHITECTURE.md)):
 
 | Concern              | Implementation                                                                                                    |
 |----------------------|-------------------------------------------------------------------------------------------------------------------|
@@ -275,8 +182,7 @@ What "production-ready" means in this repo (full detail in
 
 ### Operational knobs
 
-All of these are environment variables with sensible defaults; you do not need to set them unless
-your deployment differs.
+All environment variables with sensible defaults; you don't need to set them unless your deployment differs.
 
 | Env var                     | Purpose                                            | Default |
 |-----------------------------|----------------------------------------------------|---------|
@@ -289,21 +195,42 @@ your deployment differs.
 | `SKILL_FACTORY_LOG_LEVEL`   | `DEBUG` / `INFO` / `WARNING` / `ERROR`             | `WARNING` |
 | `SKILL_FACTORY_LOG_FORMAT`  | `plain` or `json`                                  | `plain` |
 | `SKILLS_DIR`                | Where skills are written                           | `./skills` |
+| `SF_EVALS_DIR`              | Where eval-set YAMLs live                          | `./evals` |
 
 ### Auth
 
-The Streamlit app is **single-tenant**. If you expose it beyond localhost, put it behind your
-existing reverse-proxy / auth layer (nginx, oauth2-proxy, Cloudflare Access, etc.). Out of the box
-the app binds to `0.0.0.0:8501` and trusts any client that can reach the port.
+The Streamlit app is **single-tenant**. If you expose it beyond localhost, put it behind your existing reverse-proxy / auth layer (nginx, oauth2-proxy, Cloudflare Access, etc.). Out of the box the app binds to `0.0.0.0:8501` and trusts any client that can reach the port.
+
+---
+
+## Development
+
+```bash
+make dev               # pip install -e ".[dev,pdf]"
+make lint              # ruff check
+make format            # ruff format
+make test              # pytest
+make test-cov          # pytest + coverage
+make typecheck         # mypy on skill_factory/
+```
+
+The core package [`skill_factory/`](skill_factory/) contains all logic and has **no Streamlit imports**, so it's fully unit-testable and reusable outside the UI. The Streamlit layer lives in [`ui/`](ui/) and [`app.py`](app.py). The eval package lives in [`skill_factory/eval/`](skill_factory/eval/) and is fully CLI-driven.
+
+### Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the dev workflow and commit conventions. The highest-leverage contributions right now are **new reference eval sets** (drop a YAML in `evals/`), **real measured lift numbers** from running evals against shipped skills, and **judge self-calibration prompts** that catch common failure modes.
+
+---
 
 ## Roadmap (deferred)
 
-The interfaces/seams for these are in place; they were intentionally left out of v1:
+The interfaces/seams for these are in place; they were intentionally left for follow-up:
 
-- **Web research provider** (Tavily/Brave) for automatic context injection — see
-  `skill_factory/research.py`.
-- **SQLite search index** for very large libraries (filesystem + filters cover smaller ones).
-- Richer test-result analytics dashboards.
+- **Bundle authoring** — generate the full skill folder (SKILL.md + `scripts/` + `references/` + `assets/`), not just SKILL.md.
+- **Distribution CLI** — `skill-factory install <skill> --target ~/.claude/skills/` or `--target api` (upload to Skills API).
+- **Run command** — `skill-factory run --skill <slug> --prompt "..."` for a one-liner skill invocation.
+- **Public skill registry** — push/pull skills, search, fork, rate.
+- **Activation test harness** — measure description precision/recall against positive + negative trigger phrases.
 
 ## License
 

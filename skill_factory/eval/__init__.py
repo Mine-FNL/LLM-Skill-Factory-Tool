@@ -32,15 +32,24 @@ from .runner import (
     DEFAULT_BOOTSTRAP_SEED,
     DEFAULT_N_BOOTSTRAP,
     bootstrap_lift_ci,
+    run_controls,
     run_eval,
     save_report_to_skill_meta,
 )
-from .types import EvalPrompt, EvalReport, EvalSet, JudgeConfig, PromptResult
+from .types import (
+    ControlPrompt,
+    EvalPrompt,
+    EvalReport,
+    EvalSet,
+    JudgeConfig,
+    PromptResult,
+)
 
 __all__ = [
     "DEFAULT_BOOTSTRAP_SEED",
     "DEFAULT_EVALS_DIR",
     "DEFAULT_N_BOOTSTRAP",
+    "ControlPrompt",
     "EvalPrompt",
     "EvalReport",
     "EvalSet",
@@ -52,6 +61,7 @@ __all__ = [
     "list_eval_sets",
     "load_eval_set",
     "parse_score",
+    "run_controls",
     "run_eval",
     "save_report_to_skill_meta",
 ]

@@ -1,0 +1,38 @@
+name: Question
+description: How do I…? (Use Discussions for open-ended Q&A when possible.)
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For "how do I" questions please consider
+        [GitHub Discussions](../discussions) first — they're easier for the
+        community to find later. Use this template for a specific reproducible
+        issue with the tool itself.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: What are you trying to do?
+      placeholder: |
+        Be specific. The shortest reproducer that gets to the question is the
+        most useful one.
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you tried so far?
+      placeholder: |
+        Include command output, code, or links to docs.
+
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      placeholder: |
+        - OS:
+        - Python:
+        - skill-factory version:
+        - Provider + model:

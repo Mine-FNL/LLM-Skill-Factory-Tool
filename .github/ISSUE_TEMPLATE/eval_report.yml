@@ -1,0 +1,58 @@
+name: Eval report
+description: Share a real lift number from running an eval set against a saved skill.
+labels: ["eval-results"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Real measured lift numbers are the most valuable contribution to this
+        project. They populate the "skills that have been measured" story in
+        the README and let other users calibrate expectations. **Use `--json`
+        and paste the output below.**
+
+  - type: input
+    id: slug
+    attributes:
+      label: Skill slug
+      placeholder: e.g. backend-api-engineer
+    validations:
+      required: true
+
+  - type: input
+    id: eval_set
+    attributes:
+      label: Eval set
+      placeholder: e.g. backend-api-engineer (or your own)
+    validations:
+      required: true
+
+  - type: input
+    id: model
+    attributes:
+      label: Eval + judge model
+      placeholder: e.g. anthropic/claude-sonnet-4.6
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: One-line summary
+      placeholder: |
+        e.g. "+35pp on Claude Sonnet 4.6, n=7, controls passed"
+
+  - type: textarea
+    id: json
+    attributes:
+      label: `python -m skill_factory eval <slug> --save --json` (paste here)
+      value: "```json\n\n```"
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / observations
+      placeholder: |
+        Anything interesting — judge calibration warnings, surprising per-prompt
+        deltas, prompts the skill hurt, etc.

@@ -61,6 +61,59 @@ class JudgeConfig:
 
 
 @dataclass
+class ControlPrompt:
+    """A judge self-calibration control: a prompt with a known expected score.
+
+    The runner scores the control and warns if the judge's score diverges from
+    ``expected_score``. Use these to catch judge miscalibration before trusting
+    a real lift number.
+    """
+
+    id: str
+    prompt: str
+    expected_score: float
+    expected_response_snippet: str = ""
+    # Tolerance for warnings: |judge - expected| > tolerance ⇒ warning.
+    tolerance: float = 0.5
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> ControlPrompt:
+        return cls(
+            id=str(data["id"]),
+            prompt=str(data["prompt"]),
+            expected_score=float(data["expected_score"]),
+            expected_response_snippet=str(data.get("expected_response_snippet", "") or ""),
+            tolerance=float(data.get("tolerance", 0.5)),
+        )
+
+    def to_eval_prompt(self) -> EvalPrompt:
+        """Render the control as a synthetic :class:`EvalPrompt` for the judge.
+
+        The expected_traits are derived from the expected_score so the judge
+        sees a consistent rubric. We use a trait that the judge can either
+        detect (for high-score controls) or fail to detect (for low-score
+        controls); the resulting score lets us measure divergence.
+        """
+
+        from .types import EvalPrompt  # local import to avoid cycle at module load
+
+        if self.expected_score >= 1.0:
+            traits = ["addresses the prompt thoroughly and correctly"]
+        elif self.expected_score >= 0.5:
+            traits = ["partially addresses the prompt"]
+        else:
+            traits = ["fails to address the prompt adequately"]
+        return EvalPrompt(
+            id=f"control-{self.id}",
+            prompt=self.prompt,
+            expected_traits=traits,
+        )
+
+
+@dataclass
 class EvalSet:
     """A named collection of prompts + judging instructions."""
 
@@ -69,6 +122,8 @@ class EvalSet:
     version: int = 1
     prompts: list[EvalPrompt] = field(default_factory=list)
     judge: JudgeConfig = field(default_factory=JudgeConfig)
+    # Optional self-calibration controls (see :class:`ControlPrompt`).
+    controls: list[ControlPrompt] = field(default_factory=list)
     # Per-prompt score >= pass_threshold counts as a "pass".
     pass_threshold: float = 0.5
 
@@ -79,6 +134,7 @@ class EvalSet:
             "version": self.version,
             "pass_threshold": self.pass_threshold,
             "judge": asdict(self.judge),
+            "controls": [c.to_dict() for c in self.controls],
             "prompts": [p.to_dict() for p in self.prompts],
         }
 
@@ -91,6 +147,7 @@ class EvalSet:
             version=int(data.get("version", 1)),
             prompts=[EvalPrompt.from_dict(p) for p in data.get("prompts", [])],
             judge=JudgeConfig(**judge_data) if judge_data else JudgeConfig(),
+            controls=[ControlPrompt.from_dict(c) for c in data.get("controls", []) or []],
             pass_threshold=float(data.get("pass_threshold", 0.5)),
         )
 
@@ -134,6 +191,8 @@ class EvalReport:
     pass_threshold: float = 0.5
     created_at: float = field(default_factory=time.time)
     prompt_results: list[PromptResult] = field(default_factory=list)
+    # Judge self-calibration results (one entry per control prompt).
+    control_results: list[dict[str, Any]] = field(default_factory=list)
     # Free-form notes (cost, runtime, warnings).
     notes: dict[str, Any] = field(default_factory=dict)
 
@@ -144,6 +203,10 @@ class EvalReport:
             f"n={self.n_prompts}, base={self.base_pass_rate:.0%}, "
             f"skill={self.skill_pass_rate:.0%})"
         )
+
+    def judge_calibration_ok(self) -> bool:
+        """True when every control prompt was scored within its tolerance."""
+        return all(c.get("within_tolerance", True) for c in self.control_results)
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)

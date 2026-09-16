@@ -1,0 +1,61 @@
+name: Bug report
+description: Something is broken or behaving unexpectedly.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Please fill in the sections
+        below — the more info you give, the faster we can reproduce and fix it.
+
+  - type: input
+    id: summary
+    attributes:
+      label: One-line summary
+      placeholder: e.g. "Validator says name too long for 50-char slug"
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run `streamlit run app.py`
+        2. Click on ...
+        3. Paste the following skill body...
+      value: "```\n\n```"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      placeholder: |
+        What you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      placeholder: |
+        What actually happened. Include the full error traceback if there is one.
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: |
+        OS (e.g. macOS 14.4), Python version, package version, provider + model.
+      value: |
+        - OS:
+        - Python:
+        - skill-factory version: (run `python -m skill_factory`)
+        - Provider + model:
+    validations:
+      required: true

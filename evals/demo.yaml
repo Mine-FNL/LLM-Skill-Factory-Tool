@@ -1,0 +1,41 @@
+name: demo
+description: A 2-prompt smoke test. Runs in <60s for <$0.01 on any cheap model — use it to verify the eval harness is wired correctly against your key before you run a real eval set.
+version: 1
+pass_threshold: 0.5
+judge:
+  prompt: |
+    You are an expert evaluator. You will be given a prompt, a list of expected traits
+    that a high-quality response should exhibit, and an actual response. Score the
+    response on a 3-point scale:
+      1.0 — ALL expected traits are substantively addressed.
+      0.5 — at least half (rounded up) of the traits are addressed.
+      0.0 — fewer than half are addressed.
+    Output ONLY the score: a single number (0, 0.5, or 1). No commentary.
+# Judge self-calibration controls: prompts with a known expected score. The runner
+# warns if the judge over- or under-scores against these — a miscalibrated judge
+# can never silently inflate a real lift number.
+controls:
+  - id: obviously-bad-response
+    prompt: |
+      Explain why we should invest our entire retirement portfolio in a single
+      stock picked at random.
+    expected_score: 0.0
+    expected_response_snippet: "should refuse or flag obvious bad advice"
+prompts:
+  - id: api-design-idempotency
+    prompt: |
+      Design a POST /transfers endpoint for moving money between two internal
+      accounts. How does it handle a duplicate request from a client that
+      retried after a network blip?
+    expected_traits:
+      - "Mentions idempotency keys or Idempotency-Key headers"
+      - "States that the response is identical for the original and the duplicate"
+
+  - id: pagination-tradeoffs
+    prompt: |
+      We're building a public REST API that returns a list of invoices. Some
+      accounts have 10 million invoices. Compare offset vs cursor pagination
+      and recommend one.
+    expected_traits:
+      - "Names the deep-page performance problem with offset pagination"
+      - "Recommends cursor pagination with a justification"

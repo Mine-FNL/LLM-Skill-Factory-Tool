@@ -19,12 +19,13 @@ from __future__ import annotations
 
 import logging
 import random
+from typing import Any
 
 from ..frontmatter import split_frontmatter
 from ..llm_client import LLMClient, LLMError
 from ..skill_store import SkillStore
 from .judge import judge_response
-from .types import EvalReport, EvalSet, PromptResult
+from .types import ControlPrompt, EvalReport, EvalSet, PromptResult
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +104,56 @@ def bootstrap_lift_ci(
     return (lifts[lo_idx], lifts[hi_idx])
 
 
+def run_controls(
+    client: LLMClient,
+    eval_set: EvalSet,
+    *,
+    judge_model: str | None = None,
+) -> list[dict[str, Any]]:
+    """Score each control prompt and return a list of result dicts.
+
+    Each result has ``id``, ``expected_score``, ``judge_score``, ``delta``,
+    ``tolerance``, ``within_tolerance``, and ``warning``. A miscalibrated judge
+    shows up as ``within_tolerance=False`` and a non-null ``warning``.
+    """
+
+    results: list[dict[str, Any]] = []
+    for control in eval_set.controls:
+        # The control's "response" is the *expected* behaviour (a hint of what
+        # the model *should* say), which we judge. The judge shouldn't know
+        # the expected score — we just measure divergence afterwards.
+        synthetic_response = control.expected_response_snippet or control.prompt
+        score = judge_response(
+            client,
+            ControlPrompt.to_eval_prompt(control),
+            synthetic_response,
+            eval_set.judge,
+            judge_model=judge_model,
+        )
+        delta = score - control.expected_score
+        within = abs(delta) <= control.tolerance
+        warning: str | None = None
+        if not within:
+            warning = (
+                f"judge scored {score:.1f} for control '{control.id}' "
+                f"(expected {control.expected_score:.1f}, tolerance ±{control.tolerance:.1f}). "
+                "A miscalibrated judge can inflate the lift — fix the judge prompt "
+                "or the control before trusting the lift number."
+            )
+        results.append(
+            {
+                "id": control.id,
+                "expected_score": control.expected_score,
+                "judge_score": score,
+                "delta": delta,
+                "tolerance": control.tolerance,
+                "within_tolerance": within,
+                "warning": warning,
+            }
+        )
+    return results
+
+
 def run_eval(
     client: LLMClient,
     eval_set: EvalSet,
@@ -126,6 +177,9 @@ def run_eval(
     skill_passed: list[bool] = []
     prompt_results: list[PromptResult] = []
     threshold = eval_set.pass_threshold
+
+    # Judge self-calibration controls (run first so warnings are visible).
+    control_results = run_controls(client, eval_set, judge_model=judge_model)
 
     for prompt in eval_set.prompts:
         base_out = _run_one(client, _BASE_SYSTEM, prompt.prompt, model=model)
@@ -196,6 +250,7 @@ def run_eval(
         n_bootstrap=n_bootstrap,
         pass_threshold=threshold,
         prompt_results=prompt_results,
+        control_results=control_results,
     )
 
 

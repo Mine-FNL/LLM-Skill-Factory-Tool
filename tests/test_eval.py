@@ -10,6 +10,7 @@ import pytest
 
 from skill_factory import eval as _eval_pkg
 from skill_factory.eval import (
+    ControlPrompt,
     EvalPrompt,
     EvalReport,
     EvalSet,
@@ -366,3 +367,92 @@ def test_report_summary_format():
     assert "+20.0" in s
     assert "[+5.0" in s
     assert "n=10" in s
+
+
+# ---------------------------------------------------------------------------
+# Judge self-calibration controls
+# ---------------------------------------------------------------------------
+class TestControlPrompts:
+    def test_eval_set_round_trips_controls(self):
+        s = load_eval_set("demo")  # shipped with one control
+        assert len(s.controls) >= 1
+        blob = s.to_dict()
+        restored = EvalSet.from_dict(blob)
+        assert len(restored.controls) == len(s.controls)
+        assert restored.controls[0].id == s.controls[0].id
+        assert restored.controls[0].expected_score == s.controls[0].expected_score
+
+    def test_control_renders_to_eval_prompt(self):
+        c = ControlPrompt(id="x", prompt="q?", expected_score=0.0)
+        p = c.to_eval_prompt()
+        # Low-score controls should expose a "fails to address" trait.
+        assert any("fail" in t.lower() for t in p.expected_traits)
+
+        c_high = ControlPrompt(id="y", prompt="q?", expected_score=1.0)
+        p_high = c_high.to_eval_prompt()
+        assert any(
+            "thoroughly" in t.lower() or "correctly" in t.lower() for t in p_high.expected_traits
+        )
+
+    def test_run_eval_records_control_results(self):
+        client = FakeClient([1.0] * 8)  # judge always returns 1
+        es = EvalSet(
+            name="with-controls",
+            prompts=[EvalPrompt(id="a", prompt="q?", expected_traits=["t"])],
+            controls=[
+                ControlPrompt(id="c1", prompt="q?", expected_score=1.0),
+            ],
+        )
+        report = run_eval(client, es, skill_md="body", skill_slug="x", n_bootstrap=50)
+        assert len(report.control_results) == 1
+        c = report.control_results[0]
+        assert c["id"] == "c1"
+        assert c["judge_score"] == 1.0
+        assert c["within_tolerance"] is True
+        assert c["warning"] is None
+
+    def test_calibration_warning_when_judge_diverges(self):
+        # Judge returns 0.0 for everything but the control expects 1.0 → warning.
+        client = FakeClient([0.0] * 8)
+        es = EvalSet(
+            name="miscalibrated",
+            prompts=[EvalPrompt(id="a", prompt="q?", expected_traits=["t"])],
+            controls=[
+                ControlPrompt(
+                    id="bad-control",
+                    prompt="q?",
+                    expected_score=1.0,
+                    tolerance=0.5,
+                ),
+            ],
+        )
+        report = run_eval(client, es, skill_md="body", skill_slug="x", n_bootstrap=50)
+        c = report.control_results[0]
+        assert c["within_tolerance"] is False
+        assert c["warning"] is not None
+        assert "miscalibrated" in c["warning"].lower()
+        assert report.judge_calibration_ok() is False
+
+    def test_empty_controls_is_ok(self):
+        client = FakeClient([1.0] * 4)
+        es = EvalSet(
+            name="no-controls",
+            prompts=[EvalPrompt(id="a", prompt="q?", expected_traits=["t"])],
+        )
+        report = run_eval(client, es, skill_md="body", skill_slug="x", n_bootstrap=50)
+        assert report.control_results == []
+        assert report.judge_calibration_ok() is True  # vacuously true
+
+    def test_within_tolerance_at_boundary(self):
+        client = FakeClient([1.0] * 4)
+        es = EvalSet(
+            name="boundary",
+            prompts=[EvalPrompt(id="a", prompt="q?", expected_traits=["t"])],
+            controls=[
+                ControlPrompt(id="edge", prompt="q?", expected_score=1.0, tolerance=0.0),
+            ],
+        )
+        report = run_eval(client, es, skill_md="body", skill_slug="x", n_bootstrap=50)
+        c = report.control_results[0]
+        # judge=1.0, expected=1.0, tolerance=0.0 → exactly within tolerance.
+        assert c["within_tolerance"] is True

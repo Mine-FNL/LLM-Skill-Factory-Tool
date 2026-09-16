@@ -220,6 +220,27 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  eval model: {report.eval_model}")
         print(f"  judge     : {report.judge_model}")
         print()
+
+        # Judge self-calibration controls first (so warnings are loud).
+        if report.control_results:
+            plural = "s" if len(report.control_results) > 1 else ""
+            print(f"  judge calibration ({len(report.control_results)} control{plural}):")
+            for c in report.control_results:
+                ok = "✓" if c["within_tolerance"] else "✗"
+                print(
+                    f"    [{ok}] {c['id']:<28} expected={c['expected_score']:.1f} "
+                    f"judge={c['judge_score']:.1f} delta={c['delta']:+.1f}"
+                )
+                if c["warning"]:
+                    print(f"        WARNING: {c['warning']}")
+            if not report.judge_calibration_ok():
+                print()
+                print(
+                    "  WARNING: judge is miscalibrated — the lift number below "
+                    "should be treated with caution until controls pass."
+                )
+            print()
+
         print(f"  base pass  : {report.base_pass_rate:>6.1%}")
         print(f"  skill pass : {report.skill_pass_rate:>6.1%}")
         print(f"  lift       : {report.lift_pp:+6.1f}pp")
