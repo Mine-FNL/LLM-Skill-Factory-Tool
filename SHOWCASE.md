@@ -13,12 +13,36 @@ and add this to your CI:
 
 ```bash
 pip install skillmd-lint
-skillmd-lint --strict skills/
+skillmd-lint --strict --schema skills/
 ```
 
-16 rules, 9 errors that block CI, 7 warnings. Catches spec violations
-the factory's built-in validator misses (reserved slugs, XML tags,
-description length, missing negative triggers).
+**v1.1.0**: 22 rules (9 errors, 13 warnings), pure-Python JSON Schema
+validation (`--schema`), zero runtime deps beyond PyYAML. Cross-platform
+verified on Linux, macOS, and Windows.
+
+### Companion: skillmd-lint-action
+
+For CI in GitHub Actions, use the official
+[`skillmd-lint-action`](https://github.com/Mine-FNL/skillmd-lint-action):
+
+```yaml
+- uses: actions/checkout@v4
+- uses: Mine-FNL/skillmd-lint-action@v1
+  with:
+    path: skills/
+    strict: "true"
+```
+
+7 inputs (`path`, `strict`, `fail-on-warnings`, `version`, `python-version`,
+`extra-args`, `index-url`) + 2 outputs (`errors`, `warnings`). Surfaces
+findings as inline PR annotations.
+
+### Try it online
+
+A faithful browser-side port of the rule engine is at
+[`site/index.html`](site/index.html) — open it locally or visit the
+GitHub Pages deployment. The same 22 rules from v1.1.0 are reimplemented
+in JavaScript (ES5, no build step, no external deps).
 
 ## 0. The full author → measure → run loop
 
