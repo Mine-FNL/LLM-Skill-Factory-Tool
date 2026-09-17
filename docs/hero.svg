@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 280" role="img" aria-label="LLM Skill Factory hero">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7C5CFC"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="liftGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <style>
+      .title { fill: #f0f6fc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 36px; font-weight: 800; }
+      .sub { fill: #8b949e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 16px; font-weight: 400; }
+      .pill { fill: #161b22; stroke: #30363d; stroke-width: 1; rx: 8; }
+      .pill-text { fill: #c9d1d9; font-family: 'JetBrains Mono', 'SF Mono', monospace; font-size: 12px; }
+      .pill-text-bold { fill: #f0f6fc; font-family: 'JetBrains Mono', 'SF Mono', monospace; font-size: 12px; font-weight: 700; }
+      .lift-text { fill: #10b981; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 20px; font-weight: 800; }
+      .lift-label { fill: #8b949e; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 1px; }
+    </style>
+  </defs>
+
+  <rect width="900" height="280" fill="url(#bgGrad)"/>
+
+  <!-- Title -->
+  <text x="40" y="60" class="title">LLM Skill Factory</text>
+  <text x="40" y="92" class="sub">The SKILL.md studio with built-in measurement</text>
+
+  <!-- Three feature pills in a row -->
+  <g transform="translate(40, 130)">
+    <rect x="0" y="0" width="220" height="40" class="pill"/>
+    <text x="14" y="25" class="pill-text-bold">author</text>
+    <text x="80" y="25" class="pill-text">structured pipeline</text>
+  </g>
+
+  <g transform="translate(275, 130)">
+    <rect x="0" y="0" width="220" height="40" class="pill"/>
+    <text x="14" y="25" class="pill-text-bold">measure</text>
+    <text x="92" y="25" class="pill-text">bootstrap 95% CI</text>
+  </g>
+
+  <g transform="translate(510, 130)">
+    <rect x="0" y="0" width="220" height="40" class="pill"/>
+    <text x="14" y="25" class="pill-text-bold">run</text>
+    <text x="60" y="25" class="pill-text">CLI, multi-provider</text>
+  </g>
+
+  <!-- Right-side big lift badge -->
+  <g transform="translate(610, 195)">
+    <text x="0" y="0" class="lift-label">EVAL HARNESS OUTPUT</text>
+    <text x="0" y="32" class="lift-text">lift = +42.9pp</text>
+    <text x="0" y="56" class="sub" style="font-size:13px;">95% CI [+15, +70] • n=7</text>
+  </g>
+
+  <!-- Decorative accent stripe under title -->
+  <rect x="40" y="68" width="380" height="3" rx="1.5" fill="url(#accent)" opacity="0.8"/>
+</svg>

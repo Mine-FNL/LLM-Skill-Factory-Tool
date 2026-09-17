@@ -7,10 +7,14 @@ Author, validate, version, and *prove* that your skill makes the model better �
 
 [![CI](https://github.com/Mine-FNL/LLM-Skill-Factory-Tool/actions/workflows/ci.yml/badge.svg)](https://github.com/Mine-FNL/LLM-Skill-Factory-Tool/actions)
 [![Coverage](https://img.shields.io/badge/coverage-79%25-brightgreen.svg)](tests/)
-[![Tests](https://img.shields.io/badge/tests-146%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-166%20passing-brightgreen.svg)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![v0.3.0](https://img.shields.io/badge/version-0.3.0-blueviolet.svg)](CHANGELOG.md)
+[![v0.4.0](https://img.shields.io/badge/version-0.4.0-blueviolet.svg)](CHANGELOG.md)
+
+<p align="center">
+  <img src="docs/hero.svg" width="900" alt="LLM Skill Factory: author → measure → run, with bootstrap 95% CI">
+</p>
 
 </div>
 
