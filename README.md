@@ -271,9 +271,20 @@ The interfaces/seams for these are in place; they were intentionally left for fo
 
 - **Bundle authoring** — generate the full skill folder (SKILL.md + `scripts/` + `references/` + `assets/`), not just SKILL.md.
 - **Distribution CLI** — `skill-factory install <skill> --target ~/.claude/skills/` or `--target api` (upload to Skills API).
-- **Run command** — `skill-factory run --skill <slug> --prompt "..."` for a one-liner skill invocation.
+- **Run command** — `skill-factory run --skill <slug> --prompt "..."` for a one-liner skill invocation. ✓ (shipped in v0.4)
 - **Public skill registry** — push/pull skills, search, fork, rate.
 - **Activation test harness** — measure description precision/recall against positive + negative trigger phrases.
+
+## Related projects (in the SKILL.md ecosystem)
+
+These are real, sibling repos in the Mine-FNL org + adjacent. Each of them is the kind of project this tool was built to author or measure:
+
+- **[Mine-FNL/grok-skills](https://github.com/Mine-FNL/grok-skills)** — 18 production-ready SKILL.md packs for Grok Build (code review, debugging, security, etc.). This is the first real-world consumer of the SKILL.md format in this org.
+- **[delzarsolutionsllc/grok-custom-skills](https://github.com/delzarsolutionsllc/grok-custom-skills)** — an external collection of reusable Grok-compatible agent skills, forked from Stijnman's original. Same ecosystem, same format.
+- **[Mine-FNL/fnl-fusion-releases](https://github.com/Mine-FNL/fnl-fusion-releases)** — public release artifacts for the FNL Fusion installers (Falcon Nest-adjacent).
+- **[Mine-FNL/qstocks-filing-tool](https://github.com/Mine-FNL/qstocks-filing-tool)** — jurisdiction-agnostic PDF → lossless filing JSON (companion tool that operates on a different but adjacent problem).
+
+If you maintain a SKILL.md pack or a similar agent-skills collection, open an issue or PR — we'd love to add it here, and we'd love to use this tool to measure your packs.
 
 ## License
 
