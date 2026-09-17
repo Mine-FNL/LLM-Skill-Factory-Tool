@@ -64,7 +64,7 @@ Every repo cross-links the others:
 | skillmd-lint-action | 1.0.0 | 3 fixtures + CI build matrix | n/a | Docker-based, 7 inputs, 2 outputs |
 | LLM-Skill-Factory-Tool | 0.4.0 | 166 | 79% | Streamlit + CLI, eval harness |
 | Browser playground | (matches skillmd-lint) | 15 parity tests | n/a | Same 22 rules in JS, no build |
-| skillmd-lint-vscode | 0.1.0 (in progress) | TBD | TBD | TypeScript, vsce-packaged |
+| skillmd-lint-vscode | 0.1.0 | 23 | n/a | TypeScript + esbuild, Mocha tests, vsce-packaged |
 
 ## What we don't ship
 
