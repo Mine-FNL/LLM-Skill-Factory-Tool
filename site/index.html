@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>skillmd-lint playground — lint SKILL.md in your browser</title>
+<meta name="description" content="Browser playground for Mine-FNL/skillmd-lint. Mirror of the same 16 rules (E001–E009 errors, W001–W007 warnings). Offline, no build step, no tracking.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-mark" aria-hidden="true">
+      <span class="mark-tick">E</span><span class="mark-tick">W</span>
+    </div>
+    <h1>skillmd-lint <span class="hero-thin">playground</span></h1>
+    <p class="hero-sub">
+      Paste a <code>SKILL.md</code> &rarr; get the same 16 lint findings the
+      <a href="https://github.com/Mine-FNL/skillmd-lint" rel="noopener" target="_blank">skillmd-lint</a>
+      CLI emits. Runs entirely in your browser. No build, no API, no tracking.
+    </p>
+  </div>
+</header>
+
+<main class="layout">
+
+  <section class="toolbar" aria-label="Sample controls">
+    <button type="button" class="btn btn-primary" id="btn-valid">Load valid example</button>
+    <button type="button" class="btn btn-warn" id="btn-invalid">Load invalid example</button>
+    <button type="button" class="btn btn-ghost" id="btn-clear">Clear</button>
+    <span class="toolbar-spacer"></span>
+    <button type="button" class="btn btn-link" id="btn-share" title="Copy a ?skill=… URL with the current editor contents">Copy share link</button>
+    <span class="toolbar-status" id="status" aria-live="polite"></span>
+  </section>
+
+  <section class="panes">
+
+    <div class="pane pane-editor">
+      <div class="pane-head">
+        <h2>SKILL.md <span class="pane-sub">editor</span></h2>
+        <span class="pane-meta" id="editor-meta">0 lines &middot; 0 chars</span>
+      </div>
+      <textarea
+        id="editor"
+        spellcheck="false"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        wrap="off"
+        aria-label="SKILL.md source"
+        placeholder="Paste your SKILL.md here, or click Load valid / invalid example above."></textarea>
+    </div>
+
+    <div class="pane pane-results">
+      <div class="pane-head">
+        <h2>Lint results</h2>
+        <div class="tabs" role="tablist" aria-label="Output format">
+          <button type="button" class="tab is-active" role="tab" data-tab="human" aria-selected="true">Human</button>
+          <button type="button" class="tab" role="tab" data-tab="json" aria-selected="false">JSON</button>
+          <button type="button" class="tab" role="tab" data-tab="github" aria-selected="false">GitHub Actions</button>
+        </div>
+      </div>
+      <div class="results-summary" id="summary" aria-live="polite"></div>
+      <pre class="results-output" id="output" aria-label="Lint output"></pre>
+    </div>
+
+  </section>
+
+  <section class="rules-card" aria-label="All 16 mirrored rules">
+    <h2>16 rules mirrored from <code>skillmd_lint/rules.py</code></h2>
+    <div class="rules-grid">
+      <div class="rule-col">
+        <h3 class="col-errors">Errors <span class="col-count">9</span></h3>
+        <ul class="rule-list">
+          <li><b>E001</b> &middot; file not found <span class="muted">(file mode only)</span></li>
+          <li><b>E002</b> &middot; frontmatter missing or invalid</li>
+          <li><b>E003</b> &middot; <code>name</code> missing or empty</li>
+          <li><b>E004</b> &middot; name not lowercase kebab-case</li>
+          <li><b>E005</b> &middot; name collides with a reserved slug</li>
+          <li><b>E006</b> &middot; name longer than 64 chars</li>
+          <li><b>E007</b> &middot; <code>description</code> missing or empty</li>
+          <li><b>E008</b> &middot; description longer than 1024 chars</li>
+          <li><b>E009</b> &middot; description contains XML tags</li>
+        </ul>
+      </div>
+      <div class="rule-col">
+        <h3 class="col-warnings">Warnings <span class="col-count">7</span></h3>
+        <ul class="rule-list">
+          <li><b>W001</b> &middot; description has no positive trigger</li>
+          <li><b>W002</b> &middot; description has no negative trigger</li>
+          <li><b>W003</b> &middot; body shorter than 20 lines</li>
+          <li><b>W004</b> &middot; body longer than 200 lines</li>
+          <li><b>W005</b> &middot; no <code>## When to use</code> section</li>
+          <li><b>W006</b> &middot; body has no concrete examples</li>
+          <li><b>W007</b> &middot; no SKILL.md in folder <span class="muted">(folder mode only)</span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="rules-note">
+      E001 only fires from <code>lint_file()</code> and W007 only from
+      <code>lint_folder()</code>. The playground lints text, so they are
+      documented but never emitted here.
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="foot-inner">
+    <p>
+      <b>skillmd-lint playground</b> &mdash; a single-page mirror of
+      <a href="https://github.com/Mine-FNL/skillmd-lint" rel="noopener" target="_blank">Mine-FNL/skillmd-lint</a>
+      (<a href="https://pypi.org/project/skillmd-lint/" rel="noopener" target="_blank">PyPI</a>).
+      Ship your SKILL.md with
+      <a href="https://github.com/Mine-FNL/LLM-Skill-Factory-Tool" rel="noopener" target="_blank">LLM-Skill-Factory-Tool</a>.
+    </p>
+    <p class="foot-meta">
+      No build step. No CDN. <code>index.html</code> + <code>style.css</code> + <code>app.js</code>.
+    </p>
+  </div>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>
