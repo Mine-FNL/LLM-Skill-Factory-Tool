@@ -28,6 +28,17 @@ Author, validate, version, and *prove* that your skill makes the model better �
 
 ---
 
+## Try it online
+
+Don't want to install anything? Open the browser playground:
+**[LLM-Skill-Factory-Tool/site/](site/)** — single-page mirror of
+[skillmd-lint](https://github.com/Mine-FNL/skillmd-lint). Paste a `SKILL.md`,
+get the same 16 lint findings (E001–E009 errors + W001–W007 warnings), copy
+a share link, or export as JSON / GitHub Actions annotations. Runs entirely
+in your browser — no backend, no build, no tracking.
+
+---
+
 ## Skills that have been measured
 
 A table generated from any `metadata.json` with a real `lift_pp` field. To populate it:
