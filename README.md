@@ -99,11 +99,19 @@ Then open the app, go to **Config**, pick a provider, paste a key, and head to *
 ### 60-second "does it work?" check
 
 ```bash
-# A 2-prompt smoke test, runs in <60s for <$0.01 on any cheap model.
-python -m skill_factory eval demo --eval-set evals/demo.yaml --model <cheap-model-id>
+# 1. No API key — see the full eval pipeline run end-to-end with realistic synthetic data.
+make demo
 ```
 
-If this prints a lift number, the harness is wired correctly against your key.
+If that prints a lift summary + a calibration panel, the harness is wired correctly. Then for a real run:
+
+```bash
+# 2. With your key — runs the actual eval against a real model.
+export OPENROUTER_API_KEY=sk-or-...
+python -m skill_factory eval <your-skill> --save
+```
+
+If that prints a lift number with a bootstrap 95% CI, the harness is wired correctly against your key.
 
 ---
 

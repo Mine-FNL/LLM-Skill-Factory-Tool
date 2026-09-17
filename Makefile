@@ -1,7 +1,7 @@
 # LLM Skill Factory — developer shortcuts.
 # All targets are deliberately tiny wrappers around the underlying tools; no magic.
 
-.PHONY: help install dev install-dev lint format test test-cov run docker-build docker-run measured clean
+.PHONY: help install dev install-dev lint format test test-cov run docker-build docker-run demo measured clean
 
 help:  ## Show this help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -41,6 +41,9 @@ docker-run:  ## Run the production Docker image (set OPENROUTER_API_KEY or other
 		-e LLM_PROVIDER=openrouter \
 		-e OPENROUTER_API_KEY=$$OPENROUTER_API_KEY \
 		skill-factory:latest
+
+demo:  ## Run the offline end-to-end demo (no API key required).
+	@python scripts/demo.py
 
 measured:  ## Render the 'Skills that have been measured' README table.
 	@python scripts/render_measured_skills.py
