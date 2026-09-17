@@ -32,7 +32,7 @@ Pick the layer that matches your problem.
 | **[LLM-Skill-Factory-Tool](https://github.com/Mine-FNL/LLM-Skill-Factory-Tool)** | Author, evaluate, and run SKILL.md files end-to-end. Streamlit UI + CLI. Includes `make demo` for a 10-second offline proof. |
 | **[skillmd-lint](https://github.com/Mine-FNL/skillmd-lint)** | Pure-Python linter for SKILL.md files. 22 rules (10 errors, 13 warnings) + a published JSON Schema. No API key, no network at runtime. |
 | **[skillmd-lint-action](https://github.com/Mine-FNL/skillmd-lint-action)** | Official GitHub Action wrapping `skillmd-lint`. 7 inputs, 2 outputs, GitHub Actions annotations on each finding. |
-| **[skillmd-lint-vscode](https://github.com/Mine-FNL/skillmd-lint-vscode)** | *(in progress)* VS Code extension with live diagnostics + safe auto-fixes. |
+| **[skillmd-lint-vscode](https://github.com/Mine-FNL/skillmd-lint-vscode)** | VS Code extension with live diagnostics + safe auto-fixes (XML strip, frontmatter-typo renames). v0.1.0. |
 | **[agentskills.io](https://agentskills.io)** | The open SKILL.md format spec. Not ours; we conform to it. |
 
 ## Why these layers
