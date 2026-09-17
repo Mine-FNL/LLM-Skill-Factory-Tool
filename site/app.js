@@ -31,6 +31,8 @@
   var RECOMMENDED_BODY_LINES = 200;
 
   var NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+  var SEMVER_RE = /^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.\-]+)?$/;
+  var TAG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
   var POSITIVE_TRIGGER_PHRASES = [
     "use when",
@@ -53,6 +55,30 @@
     "not applicable",
     "skip when"
   ];
+
+  // v1.1 additions: frontmatter typo map + recognised keys + skill_type enum.
+  // Mirrors FRONTMATTER_TYPO_MAP / VALID_SKILL_TYPES in rules.py.
+  var FRONTMATTER_TYPO_MAP = {
+    "desription": "description",
+    "desc": "description",
+    "descriptions": "description",
+    "nme": "name",
+    "naem": "name",
+    "skill_type": "skill_type",
+    "type": "skill_type",
+    "kind": "skill_type",
+    "tokkens": "tokens",
+    "tokn_budget": "token_budget",
+    "token-budget": "token_budget",
+    "tagss": "tags",
+    "tag": "tags",
+    "entites": "entities",
+    "entity": "entities",
+    "domian": "domain",
+    "doamin": "domain"
+  };
+
+  var VALID_SKILL_TYPES = ["domain-expert", "specialist", "workflow", "hybrid"];
 
   // ------------------------------------------------------------------
   // 2. Tiny frontmatter YAML parser
@@ -367,6 +393,146 @@
     return [];
   }
 
+  // ------------------------------------------------------------------
+  // v1.1 rules — mirrors the new rules added in Mine-FNL/skillmd-lint v1.1.0.
+  // ------------------------------------------------------------------
+
+  // W008 — frontmatter key looks like a typo
+  function ruleFrontmatterTypos(_p, fm) {
+    if (!fm) return [];
+    var out = [];
+    Object.keys(fm).forEach(function (key) {
+      var suggestion = FRONTMATTER_TYPO_MAP[key];
+      if (!suggestion || suggestion === key) return;
+      out.push(finding(
+        "W008", "warning",
+        "frontmatter key '" + key + "' looks like a typo; did you mean '" +
+        suggestion + "'?"
+      ));
+    });
+    return out;
+  }
+
+  // W009 — skill_type must be a recognised value
+  function ruleSkillTypeValid(_p, fm) {
+    var st = fm.skill_type;
+    if (st == null || st === "") return [];
+    if (typeof st !== "string") {
+      return [finding(
+        "W009", "warning",
+        "`skill_type` must be a string; got " + typeof st +
+        ". Valid values: " + JSON.stringify(VALID_SKILL_TYPES)
+      )];
+    }
+    if (VALID_SKILL_TYPES.indexOf(st) === -1) {
+      return [finding(
+        "W009", "warning",
+        "`skill_type` '" + st + "' is not a recognised value; expected one of " +
+        JSON.stringify(VALID_SKILL_TYPES)
+      )];
+    }
+    return [];
+  }
+
+  // W010 — version must be valid semver
+  function ruleVersionSemver(_p, fm) {
+    var ver = fm.version;
+    if (ver == null || ver === "") return [];
+    if (typeof ver !== "string" || !SEMVER_RE.test(ver)) {
+      return [finding(
+        "W010", "warning",
+        "`version` '" + String(ver) + "' is not valid semver (expected e.g. " +
+        "'1.0.0' or '1.0.0-rc.1')"
+      )];
+    }
+    return [];
+  }
+
+  // W011 — token_budget must be a positive integer.
+  // JS doesn't have Python's bool-is-int subclass surprise, but we still
+  // guard against NaN, strings, and negative / zero values.
+  function ruleTokenBudgetSane(_p, fm) {
+    var tb = fm.token_budget;
+    if (tb == null) return [];
+    var isInt = typeof tb === "number" && isFinite(tb) && Math.floor(tb) === tb;
+    if (!isInt || tb <= 0) {
+      return [finding(
+        "W011", "warning",
+        "`token_budget` must be a positive integer; got " + JSON.stringify(tb)
+      )];
+    }
+    return [];
+  }
+
+  // W012 — body should have a '## Pitfalls to avoid' (or equivalent) section
+  function rulePitfallsSection(_p, _fm, body) {
+    var low = body.toLowerCase();
+    var markers = ["## pitfalls", "## gotchas", "## common mistakes", "## what to avoid"];
+    var hit = markers.some(function (m) { return low.indexOf(m) !== -1; });
+    if (!hit) {
+      return [finding(
+        "W012", "warning",
+        "no '## Pitfalls to avoid' (or equivalent) section; documenting " +
+        "common mistakes sharply improves skill reliability"
+      )];
+    }
+    return [];
+  }
+
+  // W013 — every tag should be lowercase kebab-case
+  function ruleTagsFormat(_p, fm) {
+    var tags = fm.tags;
+    if (tags == null) return [];
+    var out = [];
+    if (!Array.isArray(tags)) {
+      return [finding(
+        "W013", "warning",
+        "`tags` must be a list; got " + typeof tags
+      )];
+    }
+    var seen = {};
+    tags.forEach(function (tag) {
+      if (typeof tag !== "string") {
+        out.push(finding(
+          "W013", "warning",
+          "tag must be a string; got " + typeof tag + ": " + JSON.stringify(tag)
+        ));
+        return;
+      }
+      if (seen[tag]) return;  // duplicate handled by E010
+      seen[tag] = true;
+      if (!tag) {
+        out.push(finding("W013", "warning", "tag must be non-empty"));
+        return;
+      }
+      if (!TAG_RE.test(tag)) {
+        out.push(finding(
+          "W013", "warning",
+          "tag '" + tag + "' must be lowercase kebab-case (letters, digits, " +
+          "single hyphens; no underscores, spaces, or uppercase)"
+        ));
+      }
+    });
+    return out;
+  }
+
+  // E010 — tags list must not contain duplicates
+  function ruleTagsUnique(_p, fm) {
+    var tags = fm.tags;
+    if (!Array.isArray(tags)) return [];
+    var out = [];
+    var seen = {};
+    tags.forEach(function (tag) {
+      if (typeof tag !== "string") return;
+      if (seen[tag]) {
+        out.push(finding("E010", "error", "duplicate tag: '" + tag + "'"));
+      } else {
+        seen[tag] = true;
+      }
+    });
+    return out;
+  }
+
   // E001 — file not found (file-mode only, never fires from text input)
   // W007 — no SKILL.md found in folder (folder-mode only, never fires from text)
   // Both are documented in the UI but never emitted here.
@@ -384,7 +550,14 @@
     ruleDescriptionNegativeTrigger,
     ruleBodyLength,
     ruleWhenToUseSection,
-    ruleHasExamples
+    ruleHasExamples,
+    ruleFrontmatterTypos,
+    ruleSkillTypeValid,
+    ruleVersionSemver,
+    ruleTokenBudgetSane,
+    rulePitfallsSection,
+    ruleTagsFormat,
+    ruleTagsUnique
   ];
 
   // ------------------------------------------------------------------

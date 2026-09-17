@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>skillmd-lint playground — lint SKILL.md in your browser</title>
-<meta name="description" content="Browser playground for Mine-FNL/skillmd-lint. Mirror of the same 16 rules (E001–E009 errors, W001–W007 warnings). Offline, no build step, no tracking.">
+<meta name="description" content="Browser playground for Mine-FNL/skillmd-lint v1.1. Mirror of the same 22 rules (E001–E010 errors, W001–W013 warnings). Offline, no build step, no tracking.">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
     </div>
     <h1>skillmd-lint <span class="hero-thin">playground</span></h1>
     <p class="hero-sub">
-      Paste a <code>SKILL.md</code> &rarr; get the same 16 lint findings the
+      Paste a <code>SKILL.md</code> &rarr; get the same 22 lint findings the
       <a href="https://github.com/Mine-FNL/skillmd-lint" rel="noopener" target="_blank">skillmd-lint</a>
       CLI emits. Runs entirely in your browser. No build, no API, no tracking.
     </p>
@@ -68,11 +68,11 @@
 
   </section>
 
-  <section class="rules-card" aria-label="All 16 mirrored rules">
-    <h2>16 rules mirrored from <code>skillmd_lint/rules.py</code></h2>
+  <section class="rules-card" aria-label="All 22 mirrored rules">
+    <h2>22 rules mirrored from <code>skillmd_lint/rules.py</code> <span class="muted">(v1.1.0)</span></h2>
     <div class="rules-grid">
       <div class="rule-col">
-        <h3 class="col-errors">Errors <span class="col-count">9</span></h3>
+        <h3 class="col-errors">Errors <span class="col-count">10</span></h3>
         <ul class="rule-list">
           <li><b>E001</b> &middot; file not found <span class="muted">(file mode only)</span></li>
           <li><b>E002</b> &middot; frontmatter missing or invalid</li>
@@ -83,10 +83,11 @@
           <li><b>E007</b> &middot; <code>description</code> missing or empty</li>
           <li><b>E008</b> &middot; description longer than 1024 chars</li>
           <li><b>E009</b> &middot; description contains XML tags</li>
+          <li><b>E010</b> &middot; duplicate tag in <code>tags</code></li>
         </ul>
       </div>
       <div class="rule-col">
-        <h3 class="col-warnings">Warnings <span class="col-count">7</span></h3>
+        <h3 class="col-warnings">Warnings <span class="col-count">13</span></h3>
         <ul class="rule-list">
           <li><b>W001</b> &middot; description has no positive trigger</li>
           <li><b>W002</b> &middot; description has no negative trigger</li>
@@ -95,13 +96,21 @@
           <li><b>W005</b> &middot; no <code>## When to use</code> section</li>
           <li><b>W006</b> &middot; body has no concrete examples</li>
           <li><b>W007</b> &middot; no SKILL.md in folder <span class="muted">(folder mode only)</span></li>
+          <li><b>W008</b> &middot; frontmatter key looks like a typo</li>
+          <li><b>W009</b> &middot; <code>skill_type</code> not in the four-value enum</li>
+          <li><b>W010</b> &middot; <code>version</code> is not valid semver</li>
+          <li><b>W011</b> &middot; <code>token_budget</code> not a positive integer</li>
+          <li><b>W012</b> &middot; no <code>## Pitfalls to avoid</code> section</li>
+          <li><b>W013</b> &middot; tag is not lowercase kebab-case</li>
         </ul>
       </div>
     </div>
     <p class="rules-note">
       E001 only fires from <code>lint_file()</code> and W007 only from
       <code>lint_folder()</code>. The playground lints text, so they are
-      documented but never emitted here.
+      documented but never emitted here. Schema validation lives in
+      <a href="https://github.com/Mine-FNL/skillmd-lint/blob/main/skillmd_frontmatter.schema.json" rel="noopener" target="_blank"><code>skillmd_frontmatter.schema.json</code></a>
+      and is enabled via the Python CLI with <code>--schema</code>.
     </p>
   </section>
 
