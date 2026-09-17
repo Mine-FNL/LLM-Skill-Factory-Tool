@@ -279,6 +279,7 @@ The interfaces/seams for these are in place; they were intentionally left for fo
 
 These are real, sibling repos in the Mine-FNL org + adjacent. Each of them is the kind of project this tool was built to author or measure:
 
+- **[Mine-FNL/skillmd-lint](https://github.com/Mine-FNL/skillmd-lint)** — standalone CLI that validates SKILL.md against the open spec (E001-E009 errors + W001-W007 warnings, CI-friendly, offline). Run it in your saved-skill CI to catch spec violations before they're loaded by an agent.
 - **[Mine-FNL/grok-skills](https://github.com/Mine-FNL/grok-skills)** — 18 production-ready SKILL.md packs for Grok Build (code review, debugging, security, etc.). This is the first real-world consumer of the SKILL.md format in this org.
 - **[delzarsolutionsllc/grok-custom-skills](https://github.com/delzarsolutionsllc/grok-custom-skills)** — an external collection of reusable Grok-compatible agent skills, forked from Stijnman's original. Same ecosystem, same format.
 - **[Mine-FNL/fnl-fusion-releases](https://github.com/Mine-FNL/fnl-fusion-releases)** — public release artifacts for the FNL Fusion installers (Falcon Nest-adjacent).

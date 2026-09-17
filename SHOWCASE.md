@@ -5,6 +5,21 @@ output path you can produce today.
 
 ---
 
+## -1. Companion: skillmd-lint
+
+Every saved skill should pass lint before it ships. Install the
+[`skillmd-lint`](https://github.com/Mine-FNL/skillmd-lint) companion CLI
+and add this to your CI:
+
+```bash
+pip install skillmd-lint
+skillmd-lint --strict skills/
+```
+
+16 rules, 9 errors that block CI, 7 warnings. Catches spec violations
+the factory's built-in validator misses (reserved slugs, XML tags,
+description length, missing negative triggers).
+
 ## 0. The full author → measure → run loop
 
 ```text
