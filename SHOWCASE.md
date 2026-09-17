@@ -5,6 +5,22 @@ output path you can produce today.
 
 ---
 
+## 0. The full author → measure → run loop
+
+```text
+# 1. Generate a skill interactively (Streamlit UI).
+streamlit run app.py
+#   → New Skill → fill the form → draft → save to skills/<slug>/v1/
+
+# 2. Measure its lift over the base model.
+python -m skill_factory eval <slug> --save
+#   → outputs a lift number + 95% CI; persists to metadata.json
+
+# 3. Run the skill against a real prompt.
+python -m skill_factory run <slug> --prompt "..." --model anthropic/claude-sonnet-4.6
+#   → loads <slug>, injects its body as a system prompt, prints the model's output
+```
+
 ## 1. `make demo` — offline end-to-end proof, 10 seconds, no key
 
 ```text

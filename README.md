@@ -109,15 +109,19 @@ If that prints a lift summary + a calibration panel, the harness is wired correc
 # 2. With your key — runs the actual eval against a real model.
 export OPENROUTER_API_KEY=sk-or-...
 python -m skill_factory eval <your-skill> --save
+
+# 3. Close the dev loop: load a saved skill and run it against a real prompt.
+python -m skill_factory run <slug> --prompt "..." --model anthropic/claude-sonnet-4.6
 ```
 
-If that prints a lift number with a bootstrap 95% CI, the harness is wired correctly against your key.
+The `run` subcommand loads any saved skill and invokes it as a system prompt against a real model — the moment between "I authored a skill" and "I see it work on a real prompt."
 
 ---
 
 ## Features
 
 - **Eval harness with bootstrap 95% CI** — measure any skill against the base model on a held-out prompt set. Persists to `metadata.json`. The headline differentiator.
+- **`skill-factory run`** — load any saved skill and invoke it against a real model from the CLI. Closes the dev loop (`python -m skill_factory run <slug> --prompt "..."`).
 - **Multi-stage generation pipeline** with approval gates: *spec → outline → draft → refine → validate → save*.
 - **Skill types**: domain-expert, specialist, workflow, hybrid.
 - **Hierarchical skills** with a base skill plus specialist **overlays**.

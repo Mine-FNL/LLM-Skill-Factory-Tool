@@ -4,7 +4,69 @@ All notable changes to **LLM Skill Factory** are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/) and the project adheres
 to [Semantic Versioning](https://semver.org/).
 
-## [0.3.0] — Unreleased
+## [0.4.0] — Unreleased
+
+**Headline: close the dev loop.**
+
+The eval harness lets you measure a skill; now there's a CLI to actually
+*run* one. The full author → measure → run loop is end-to-end from the
+command line.
+
+### Added
+- **`python -m skill_factory run <slug> --prompt "..." --model X`** — load
+  any saved skill, inject its body as a system prompt, and call a real
+  model. Returns the model's output plus token-usage metadata. Supports
+  `--json`, `--quiet`, `--show-system`, and `--version` (specific skill
+  version, default latest). New `skill_factory.run/` package with
+  `run_skill()` programmatic API + `cli_main()` console entrypoint.
+- **`make demo`** target — runs `scripts/demo.py`, an offline end-to-end
+  pipeline demonstration with a deterministic `ScriptedClient`. Produces a
+  realistic-looking +100pp lift + bootstrap CI + calibration panel, every
+  number clearly labelled SYNTHETIC. Verifies the harness wiring end-to-end
+  without an API key.
+- **`scripts/render_measured_skills.py`** — walks `examples/` + `skills/` for
+  `metadata.json` with a non-zero `lift_pp` and renders a Markdown table
+  for the README's "Skills that have been measured" section. Default
+  excludes illustrative placeholders; `--illustrative` includes them.
+- **GitHub topics + repo description** for search discoverability (17
+  topics: llm, prompts, skill-md, anthropic, claude, openai, streamlit,
+  evaluation, eval, openrouter, moonshot, kimi, prompt-engineering,
+  ai-tools, developer-tools, bootstrap, machine-learning).
+- **`v0.3.0` GitHub release** with full release notes, published via
+  `gh release create`.
+- **`examples/code-reviewer`** + **`examples/customer-support-coach`** — two
+  more shipped skills (now 6 total) covering idiomatic review across
+  Python/TypeScript/Go/Rust, and a de-escalation ladder for support.
+- **`evals/template.yaml`** — copy-and-adapt template with full schema docs,
+  recommended controls, and good-prompt authoring guidance.
+- **`SHOWCASE.md`** — annotated output snippets for every CLI path:
+  `make demo`, real eval, `make measured`, the shipped examples + eval sets,
+  cost estimates, and the contribution path.
+- **4 GitHub issue templates** — bug, feature, question, and a dedicated
+  `eval-report` template so real measured lift numbers can flow back as
+  community assets.
+- **`MANIFEST.in` + `CITATION.cff`** for PyPI-ready packaging.
+
+### Changed
+- `SkillMeta` gains eval fields (`eval_results`, `lift_pp`, `lift_ci_pp`,
+  `base_pass_rate`, `skill_pass_rate`, `last_eval_set`, `last_eval_at`)
+  with defaults for back-compat with older `metadata.json` files.
+- `EvalSet` gains `controls:` for judge self-calibration — a control is a
+  prompt with a known expected score; the runner warns if the judge
+  diverges beyond `tolerance`. The shipped `evals/demo.yaml` includes one.
+- `requirements.txt` pins `requests>=2.32` (was lazily imported).
+- `pyproject.toml` upgraded to v0.4.0 with richer description, expanded
+  keywords, and a `Topic :: Scientific/Engineering :: Artificial Intelligence`
+  classifier.
+
+### Tests
+- **166 tests passing** (was 98 at v0.3.0 release time). 79% coverage.
+- New test files: `test_safety.py`, `test_llm_client_retry.py`,
+  `test_healthcheck.py`, `test_logging_setup.py`, `test_eval.py` (incl.
+  `TestControlPrompts`), `test_demo.py`, `test_render_measured_skills.py`,
+  `test_run.py`.
+
+## [0.3.0] — 2026-09-16
 
 **Headline: prove your skill makes the model better, with numbers.**
 

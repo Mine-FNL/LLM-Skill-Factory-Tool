@@ -5,4 +5,4 @@ exporting ``SKILL.md`` files. It deliberately contains **no** Streamlit imports
 so it can be unit-tested and reused outside the UI.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.4.0"

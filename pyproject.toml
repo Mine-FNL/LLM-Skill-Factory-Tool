@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm-skill-factory"
-version = "0.3.0"
+version = "0.4.0"
 description = "Domain-agnostic SKILL.md studio with a built-in eval harness — author, validate, version, and measure the lift of modular AI-expertise skills with bootstrap 95% confidence intervals."
 readme = "README.md"
 requires-python = ">=3.10"
